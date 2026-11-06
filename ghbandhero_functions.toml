@@ -1,0 +1,283 @@
+# ghbandhero_functions.toml - Manual corrections for the analyzer (default.xex): functions it missed, [[switch_tables]] the
+# codegen mistranslates and [[midasm_hook]]s into src/. KameoRecomp's kameo_functions.toml, POTCAWERecomp's
+# potcawe_functions.toml and GRAWRecomp's yeti_functions.toml have examples of each. The hooks are GH5's
+# (GH5Recomp's gh5_functions.toml), each found here by a function matcher over both executables' instruction indexes
+# and checked instruction by instruction (docs/fixes-from-gh5.md).
+
+# The C runtime's setjmp and longjmp (sub_829117A0 saves f14-f31, r13-r31, v64-v127, r1, LR and CR in the jmp_buf;
+# sub_82911480 unwinds to it and loads them back), the same code as in GH Van Halen and KameoRecomp. The codegen turns
+# calls to them into the host's setjmp and longjmp, keyed by the guest jmp_buf; translated as plain functions, longjmp
+# would load the registers and return to its caller instead of jumping. Only the image decoders use them: libjpeg
+# (sub_8282E1D0: setjmp at its error manager + 144, where its error function sub_8282D280 longjmps back) and libpng
+# (sub_8282E3F0, sub_82841630: setjmp at the start of the png struct, longjmp from sub_8283F8A8 and sub_8282D348).
+setjmp_address = 0x829117A0
+longjmp_address = 0x82911480
+
+# Codegen: the registers no call passes on are local variables of each function, not fields of the PPCContext, so
+# the compiler keeps them in host registers and the __savegprlr/__restgprlr helpers are elided, as in GH Van Halen,
+# KameoRecomp, GRAWRecomp and POTCAWERecomp. non_argument_as_local (r0, r2, r11, r12) stays off: the SEH funclets read
+# r12, which the SDK does not pass them. The non-volatile vector registers stay in the context (SDK change 42): this
+# game's compiler passes values to its callees in them, outside the calling convention, as GH Van Halen's.
+# sub_8271C9F8, sub_8271E648 and sub_82720960 set v92 (vor128 v92,v12,v12) and call sub_8271C348, whose callees
+# sub_827A9808, sub_827A9A40 and sub_827A9E80 read it without writing it (vmsum4fp128 v63,v92,v0); as local variables
+# v92 would be unset there.
+non_volatile_as_local = true
+non_volatile_vectors_as_local = false
+cr_as_local = true
+ctr_as_local = true
+xer_as_local = true
+reserved_as_local = true
+
+[functions]
+# The functions that call setjmp keep their registers in the context (share_registers): the host longjmp returns
+# into their C++ frame, and the codegen restores the context it saved at the setjmp, not local variables. The guest
+# longjmp loaded r14-r31 with their values at the setjmp. None of them calls longjmp itself, so their ends (from
+# .pdata) do not move.
+0x8282E1D0 = { share_registers = true }   # libjpeg's guard
+0x8282E3F0 = { share_registers = true }   # libpng's guards
+0x82841630 = { share_registers = true }
+# Branch (b) targets that the automatic analysis did not assign to any function (the first build, 2026-11-06), GH5's
+# eight. All are small functions reached only through tail calls, each right after an unconditional end (b, bctr, blr):
+# virtual call thunks (lwz r11,0(r3) / lwz r10,N(r11) / mtctr / bctr), setters, and thunks. Their callers forward to a
+# member (lwz r3,N(r3), a null check, then b).
+0x825E7008 = {}   # branched to from 0x824E93D8 (virtual call thunk, slot 108)
+0x825E7028 = {}   # branched to from 0x824E93BC (virtual call thunk, slot 124)
+0x825E70B8 = {}   # branched to from 0x824E94CC (virtual call thunk, slot 172)
+0x825FDFC0 = {}   # branched to from 0x8245FD54 and 0x8245FD70 (sets the byte at +241)
+0x824364C8 = {}   # branched to from 0x825479F0 (stores r4 at +144, a flag at +104 of r4 from the byte at +136)
+0x8287CEB0 = {}   # branched to from 0x8287D27C (b 0x8287CB48, a one-instruction thunk)
+0x82892EC0 = {}   # branched to from 0x82892ECC (addi r3,r3,8; b: an adjusted-this thunk)
+0x828AC250 = {}   # branched to from 0x8289B6EC (sets the word at +572)
+
+# The game's threads wait without spinning (src/thread_waits.cpp): four loops checked a condition again and
+# again and kept a core at 100 % each (the three job workers, the main thread at the start of a frame and while
+# it waits for the render thread, the render thread waiting for the vertical blank). Each hook spins briefly and then
+# sleeps between checks; ghbandhero_wait_sleep_us = 0 disables them. With ghbandhero_wait_smart (on) the workers block on the job
+# event, the render thread sleeps until shortly before the vertical blank, and the main thread waiting for a job group
+# (sub_8255CC80) watches the group's counts between passes instead of taking the queue's lock again at once.
+[[midasm_hook]]
+address = 0x825DFF94   # li r4,0 (sub_825DFF38: a job worker with an empty queue, before WaitForSingleObject(event, 0))
+name = "GHBandHeroJobWaitHook"
+[[midasm_hook]]
+address = 0x82414124   # cmplwi cr6,r3,0 (sub_82414058: while (sub_826644C8(0x82E90F30) != 0) {})
+name = "GHBandHeroFrameWaitHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x824122AC   # cmplw cr6,r11,r10 (sub_82412278: while (frames[24] == frames[20]) {}, waiting for the render thread)
+name = "GHBandHeroRenderWaitHook"
+registers = ["r11", "r10"]
+[[midasm_hook]]
+address = 0x8254FC64   # cmpld cr6,r3,r11 (sub_8254FB40: until the vertical blank counter reaches the next value)
+name = "GHBandHeroVblankWaitHook"
+registers = ["r3", "r11"]
+[[midasm_hook]]
+address = 0x8254FDAC   # cmpld cr6,r3,r30 (sub_8254FB40: until the other counter reaches the frame's last vertical blank)
+name = "GHBandHeroVblankWait2Hook"
+registers = ["r3", "r30"]
+# The game's two callbacks advance the counters those loops wait on: an event set right after each advance wakes the
+# waiting render thread at once (src/thread_waits.cpp).
+[[midasm_hook]]
+address = 0x823B07FC   # lwz r10,40(r11) (sub_823B07C0, the swap callback: after the swap counter 0x82D7DFE0's advance)
+name = "GHBandHeroSwapSignalHook"
+[[midasm_hook]]
+address = 0x823B07A8   # and r9,r4,r8 (sub_823B0748, the vertical blank callback: after the counter 0x82D7DFD0's advance)
+name = "GHBandHeroVblankSignalHook"
+[[midasm_hook]]
+address = 0x8255CD1C   # lwz r11,0(r31) (sub_8255CC80: the main thread waiting for a job group, after a pass)
+name = "GHBandHeroJobGroupWaitHook"
+registers = ["r31", "r30"]
+# The D3D library's six waits for the GPU (fences, the present, ...) call sub_82310B28 for every check: at 120 FPS
+# the render thread spent half its time there (GH Van Halen).
+[[midasm_hook]]
+address = 0x82310B28   # mflr r12 (entry of sub_82310B28: a check of a wait for the GPU, its condition still false)
+name = "GHBandHeroGpuWaitHook"
+
+# Songs in sync with their audio (src/timer.cpp): the engine's timer replaces the 50,000,000 Hz that
+# KeQueryPerformanceFrequency reports by the original console's real timebase rate, 49,875,000; the SDK's timebase
+# runs at 50 MHz, so the game's clock ran 0.25 % fast and the notes drifted ahead of the audio.
+# ghbandhero_timer_fix = false disables it.
+[[midasm_hook]]
+address = 0x823B0D5C   # cmplw cr6,r11,r7 (sub_823B0CC0: r11 = the reported frequency, r7 = 50,000,000)
+name = "GHBandHeroTimerFrequencyHook"
+registers = ["r7"]
+
+
+# A slot's kind of controller (a guitar, the drums, the singer) follows the controller played (src/players.cpp): the
+# game asks for it only when the port's controller connects, and the keyboard shares slot 0 with the first controller.
+[[midasm_hook]]
+address = 0x8248A458   # mflr r12 (entry of sub_8248A458: a controller port's update; r3 = the port)
+name = "GHBandHeroControllerPortHook"
+registers = ["r3"]
+
+# Ultrawide (src/widescreen.cpp), with ghbandhero_ultrawide: the projection of every 16:9 view is widened (Hor+: the 3D views
+# see more at the sides; their aspect ratio is the view's size, not the SetScreen aspect), and the screen elements'
+# vertices (pixels of the 1280x720 canvas) are narrowed around the center just before they are drawn to the screen
+# (the menus, the HUD, the note highway and its notes stay 16:9), with the clip windows they draw through.
+[[midasm_hook]]
+address = 0x823D9E90   # entry of sub_823D9E90, a perspective projection from its frustum (f1-f4: left, right, bottom, top)
+name = "GHBandHeroFrustumHook"
+registers = ["f1", "f2", "f3", "f4"]
+[[midasm_hook]]
+address = 0x82554D20   # bl DrawVerticesUP in sub_82554B10 (a sprite's quad: r6 = its vertices, r7 = their stride)
+name = "GHBandHeroSpriteHook"
+registers = ["r6", "r7"]
+[[midasm_hook]]
+address = 0x82620300   # bl DrawVerticesUP in sub_8261FE10 (another element's quad: the loading screen's layers)
+name = "GHBandHeroElementQuadHook"
+registers = ["r6", "r7"]
+[[midasm_hook]]
+address = 0x825D0108   # bl DrawVerticesUP in sub_825D0020 (a batch of quads: r5 = vertices, r6 = data, r7 = stride)
+name = "GHBandHeroSpriteBatchHook"
+registers = ["r5", "r6", "r7"]
+[[midasm_hook]]
+address = 0x82553BBC   # bl SetScissorRect in sub_82553A58 (a screen element's clip window: r4 = {x1, y1, x2, y2})
+name = "GHBandHeroClipWindowHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x82301638   # bl DrawVerticesUP in sub_82300C80 (a sustained note's tail: r5 = vertices, r6 = data, r7 = stride)
+name = "GHBandHeroTailHook"
+registers = ["r5", "r6", "r7"]
+[[midasm_hook]]
+address = 0x822FEACC   # bl EndVertices in sub_822FE4F0 (a sprite drawn as a grid of quads, the highway's board: r3 = device)
+name = "GHBandHeroMeshSpriteHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x823000D8   # bl EndVertices in sub_822FFC18 (the highway's depth mask, a quad of 8 byte vertices: r3 = device)
+name = "GHBandHeroHighwayMaskHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x823034D8   # bl DrawVerticesUP in sub_82303388 (a 2D particle's quad: r5 = vertices, r6 = data, r7 = stride)
+name = "GHBandHeroParticleHook"
+registers = ["r5", "r6", "r7"]
+
+
+# Frame rates above 60 (src/framerate.cpp, ghbandhero_frame_rate_fix): the engine's clocks counted in vertical blanks
+# divide by its vertical blanks per second (the global 0x82B26E7C, 60): the divisions use it times the emulated
+# vblank's rate over 60, so those clocks keep their speed (no visible case known). GH Van Halen's frame time hook is
+# not needed: Band Hero's frame time is measured on the time base.
+[[midasm_hook]]
+address = 0x82631EF0   # extsw r8,r30 (sub_82631D88: a vblank clock's vblanks into seconds, r30 = vblanks per second)
+name = "GHBandHeroVblankClockHook"
+registers = ["r30"]
+[[midasm_hook]]
+address = 0x82632178   # extsw r11,r30 (sub_82631D88: seconds back into vblanks, r30 = vblanks per second)
+name = "GHBandHeroVblankClockHook"
+registers = ["r30"]
+# Script waits counted in game frames ("Wait N gameframes", and Band Hero's Yield): above 60 Hz they last the console's N / 60 s.
+[[midasm_hook]]
+address = 0x82573540   # entry of sub_82573540 (a type 1 game-frame wait set: r3 = the wait, r4 = N)
+name = "GHBandHeroFrameWaitSetHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x825734F0   # entry of sub_825734F0 (a type 8 game-frame wait set: r3 = the wait, r4 = N)
+name = "GHBandHeroFrameWaitSetHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x82573884   # addi r11,r11,-1 (sub_82573840: a game-frame wait's count above 0, r3 = the wait)
+name = "GHBandHeroFrameWaitCountHook"
+registers = ["r3", "r11"]
+# Button presses polled by scripts (ControllerMake) last one frame: a script whose waits are held above 60 Hz is given
+# the presses of the frames it skipped.
+[[midasm_hook]]
+address = 0x824B5C5C   # bgt cr6 (sub_824B5A98: a controller's input state updated, r30 = the state, r9 = the pressed bits)
+name = "GHBandHeroInputUpdateHook"
+registers = ["r30", "r9"]
+[[midasm_hook]]
+address = 0x824C0770   # entry of sub_824C0770 (the script function ControllerMake: r4 = the script)
+name = "GHBandHeroButtonPollHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x824C0830   # addi r1,r1,112 (sub_824C0770's exit, every path)
+name = "GHBandHeroButtonPollEndHook"
+# The whammy on a sustain is told by the frame (the bar's movement since the previous frame, a countdown of 5 frames,
+# 5 frames in a row to turn a star power sustain blue or back): above 60 Hz over a 60th of a second and 5 / 60 s.
+[[midasm_hook]]
+address = 0x821D51F8   # mflr r12 (sub_821D51F8: a player's update in a song, every frame; src/keyboard.cpp)
+name = "GHBandHeroSongFrameHook"
+[[midasm_hook]]
+address = 0x821E72E4   # fsubs f0,f30,f0 (sub_821E7168, a guitar: the bar's position minus the previous frame's)
+name = "GHBandHeroWhammyHook"
+registers = ["r30", "f30", "f0"]
+[[midasm_hook]]
+address = 0x821E73DC   # fsubs f12,f30,f0 (sub_821E7168, another controller: the first axis minus the previous frame's)
+name = "GHBandHeroWhammyHook"
+registers = ["r30", "f30", "f0"]
+[[midasm_hook]]
+address = 0x821E73F0   # fsubs f0,f29,f0 (sub_821E7168, another controller: the second axis minus the previous frame's)
+name = "GHBandHeroWhammy2Hook"
+registers = ["r30", "f29", "f0"]
+[[midasm_hook]]
+address = 0x821E1ED4   # fsubs f13,f0,f13 (sub_821E1D48, the touch strip: its position minus the previous frame's)
+name = "GHBandHeroWhammyHook"
+registers = ["r31", "f0", "f13"]
+[[midasm_hook]]
+address = 0x821E7310   # stwx r10,r30,r8 (sub_821E7168: the whammy countdown, 5 frames)
+name = "GHBandHeroWhammyCountdownHook"
+registers = ["r10"]
+[[midasm_hook]]
+address = 0x821E7410   # lfs f13,14948(r8) (sub_821E7168: r10 = 5, the countdown both axes store)
+name = "GHBandHeroWhammyCountdownHook"
+registers = ["r10"]
+[[midasm_hook]]
+address = 0x821E1F00   # stwx r9,r31,r8 (sub_821E1D48: the whammy countdown, 5 frames)
+name = "GHBandHeroWhammyCountdownHook"
+registers = ["r9"]
+[[midasm_hook]]
+address = 0x821E9DE0   # cmpwi cr6,r11,5 (sub_821E9C30: frames in a row of whammying)
+name = "GHBandHeroWhammyStateHook"
+registers = ["r11"]
+[[midasm_hook]]
+address = 0x821E9EC0   # cmpwi cr6,r11,5 (sub_821E9C30: frames in a row of not whammying)
+name = "GHBandHeroWhammyStateHook"
+registers = ["r11"]
+# The loading screen's animations step by the frame: above 60 Hz the steps are scaled by 60 / the rate.
+[[midasm_hook]]
+address = 0x825DB664   # after lfd f31,-24376(r10) (sub_825DB550: the boot's spinning star, f31 = its turn each frame, 0.175 radians)
+name = "GHBandHeroLoadingStarHook"
+registers = ["f31"]
+[[midasm_hook]]
+address = 0x824274F4   # add r11,r10,r11 (sub_824274A8: DisplayLoadingScreen's icon, its angle plus its step, r10 = the step in degrees)
+name = "GHBandHeroLoadingSpinnerHook"
+registers = ["r10"]
+[[midasm_hook]]
+address = 0x825DBAF0   # fadds f0,f0,f29 (sub_825DB8C8's mode 2: a wave's phase plus its step, f29)
+name = "GHBandHeroLoadingWaveHook"
+registers = ["f29"]
+[[midasm_hook]]
+address = 0x825DBB00   # fadds f0,f13,f0 (sub_825DB8C8's mode 2: the other phase plus its step, f0)
+name = "GHBandHeroLoadingWaveHook"
+registers = ["f0"]
+
+# The screen effects each turned off by an option (src/screen_fx.cpp, ghbandhero_fx_*): the effects' composite
+# (sub_8263E130, two passes) picks its shader variants, sets each effect's constants and chooses how each pass draws
+# from a word of flags, one bit per effect, read three times: each read loses the bits of the effects turned off.
+# GH5's three reads, with the flags' base in r19 and one more fragment in Pass0 (_projection1, bit 0x200).
+[[midasm_hook]]
+address = 0x8263E508   # li r31,0 (sub_8263E130), after lwz r11,4(r19): r11 = the flags, for both passes' variants
+name = "GHBandHeroScreenFxFlagsHook"
+registers = ["r11"]
+[[midasm_hook]]
+address = 0x8263E658   # clrlwi r3,r4,26 (sub_8263E130), after lwz r4,4(r19): r4 = the flags, Pass0's way of drawing
+name = "GHBandHeroScreenFxFlagsHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x8263E71C   # clrlwi r9,r11,23 (sub_8263E130), after lwz r11,4(r19): r11 = the flags, Pass1's way of drawing
+name = "GHBandHeroScreenFxFlagsHook"
+registers = ["r11"]
+
+# Quitting from the main menu (src/quit_prompt.cpp): once per frame, the hook looks the main menu's own element up in
+# the game's element table and offers the SDK's quit prompt (B) while it exists and no dialog box does.
+[[midasm_hook]]
+address = 0x82414118   # stfd f0,-12416(r7) (sub_82414058: the main thread's frame, before its wait)
+name = "GHBandHeroQuitPromptHook"
+
+# Above 60 Hz (src/framerate.cpp): the strings' 62 Hz vibration, which 60 FPS shows as a 2 Hz wobble, and their fade of
+# 0.99 a frame, as at 60 (GH Metallica's).
+[[midasm_hook]]
+address = 0x821BA920   # lis r11,-32256 (sub_821BA8A0, after the call returning the strings' frequency, 62 Hz)
+name = "GHBandHeroStringFrequencyHook"
+registers = ["f1"]
+[[midasm_hook]]
+address = 0x821B386C   # lwz r11,284(r31) (sub_821B3830, after the call returning the strings' fade, 0.99 a frame)
+name = "GHBandHeroStringFadeHook"
+registers = ["f1"]
