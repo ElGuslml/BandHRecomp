@@ -13,3 +13,4 @@ projects.
 | [NativeXRenderer in Band Hero](native-x-renderer-ghbandhero.md) | Working, the default renderer: GH5's map and profile, translated; SMAA and FXAA on the scene's copy; shadow quality with GH5's filter fix; the observer at 100 % |
 | [Clothes shooting out for a frame](clothes-stretching.md) | GH5's fix: the skinning waits for the animation that writes its bones |
 | [Downloadable content](dlc.md) | Not tested: GH5's page, unchanged |
+| [Stutters the first time something is shown](compiling-shaders.md) | Fixed: a pipeline list ships with the game; the launcher compiles it for your graphics card at the first Play ("Compiling shaders"; NativeXRenderer) |

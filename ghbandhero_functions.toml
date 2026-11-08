@@ -58,6 +58,12 @@ reserved_as_local = true
 [[midasm_hook]]
 address = 0x825DFF94   # li r4,0 (sub_825DFF38: a job worker with an empty queue, before WaitForSingleObject(event, 0))
 name = "GHBandHeroJobWaitHook"
+# A job queued pulses the manual-reset job event (sub_8255C8F8), which woke every waiting worker for one job: with
+# ghbandhero_job_wake_one the hook wakes one waiting worker itself and the pulse is skipped.
+[[midasm_hook]]
+address = 0x8255C8F8   # lis r11,-32023 (sub_8255C8F8: lwz r3,2140(r11), the job event at 0x82E9085C; b sub_8281A4A0, PulseEvent)
+name = "GHBandHeroJobPulseHook"
+return_on_true = true
 [[midasm_hook]]
 address = 0x82414124   # cmplwi cr6,r3,0 (sub_82414058: while (sub_826644C8(0x82E90F30) != 0) {})
 name = "GHBandHeroFrameWaitHook"

@@ -99,3 +99,15 @@ renderers, 0 errors.
 - In ultrawide a one pixel column of the image stays at the left end of the 16:9 area in the menus. GH5 has the same one.
 - Not tried by a player yet: a real guitar, drums and singing, the sound by ear and its sync, star power, the whammy above
   60 FPS, the career, a second controller, the other languages, DLC.
+
+## The job queue's lock and wake-ups (2026-11-08, from GH Metallica)
+
+GH Metallica's trace of a song at 160 FPS (its `docs/cpu-usage.md`): the main thread and the three job workers slept
+and woke each other tens of thousands of times a second on the job queue's critical section, which the game creates
+with no spin count, and each job queued woke all three waiting workers (a pulse of a manual-reset event) for one of them
+to take it. The same engine here, so the same two fixes:
+- `critical_section_spin_us = 20` (the SDK's change 75, set in `src/startup.cpp`): a thread finding a game lock taken
+  watches it for up to 20 us before it sleeps. GH Metallica: 92,000 -> 31,300 switches a second, 1.84 -> 1.66 cores.
+- `ghbandhero_job_wake_one` (on; `src/thread_waits.cpp`, the job event's pulse hooked): one waiting worker is woken per
+  job. GH Metallica: each worker 5,300 -> 3,400 wakes a second, 1.98 -> 1.84 cores.
+Not measured here yet. Off: `critical_section_spin_us = 0`, `ghbandhero_job_wake_one = false`.
