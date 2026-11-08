@@ -39,3 +39,16 @@ No render state, fetch, constant or program mismatches. The stage fills the wind
 the center. The main menu's ring pulses white on both renderers, the same curve.
 
 Not tried: DLSS and FSR 3.1, which need `upscale_resolve_caller`, unset here as in GH5 and GH WoR.
+
+## The blurs' lattice (NativeXRenderer D127, 2026-11-08)
+
+In GH Metallica (a player's issue there, its `docs/bloom-lattice.md`) and then in GH Warriors of Rock, this engine,
+above 720 lines the screen effects' blurred copies of the scene showed a grid of fine lines and doubled edges: their blurs
+step by constants for 320x180 texels, so at the render scale the taps skip host texels. In GH WoR it was the background
+its depth of field blurs, at 3440x1440 in the rocker creator's character screen. NativeXRenderer's
+`unscaled_screen_fractions` keeps those reduced copies of the screen (640x360, 320x180, 160x90) at the game's resolution,
+as on the console; it is set in this profile as in GH5 and GH WoR (the submodule moved from `bf965e9` to `655cd0b` for
+it). The bloom, the depth of field and the other screen effects' passes are at the console's resolution; the scene, the
+characters and the HUD stay at the output's.
+
+**Off:** `native_x_renderer_unscaled_screen_fractions = false` in `ghbandhero.toml`.
