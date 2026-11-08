@@ -84,8 +84,9 @@ inline constexpr const char* kReleasesPage = "";
 // nothing of NativeXRenderer.
 inline constexpr bool kHasNativeXRenderer = GAME_HAS_NATIVE_X_RENDERER;
 // The renderer chosen until the player picks one (an options file without native_x_renderer): NativeXRenderer once a
-// full play test has gone through it (as in POTCAWE, its D56), the Xenos path until then.
-inline constexpr bool kNativeXRendererDefault = false;
+// full play test has gone through it (as in POTCAWE, its D56), the Xenos path until then. NativeXRenderer here, as in
+// GH5 (575136e) and GH Warriors of Rock: a first run draws with it and SMAA.
+inline constexpr bool kNativeXRendererDefault = true;
 // The antialiasing row's DLAA (NativeXRenderer's D47: NVIDIA DLSS on the main 3D view, jittered): only for a game whose
 // hooks mark its views (native_x_renderer::BeginView and EndViewGeometry, as POTCAWE's). This one does not: DLAA would
 // turn SMAA and FXAA off and DLSS never run. The row offers SMAA, FXAA and none.
@@ -95,8 +96,9 @@ inline constexpr bool kHasDlaa = false;
 // (native_x_renderer_shadow_scale, its D92): at least twice or four times the game's resolution. Only where it
 // finds them: the depth passes with no color target that are not of the game's output size.
 // Turned on once the log shows NativeXRenderer finding the game's shadow maps ("shadow map: ...") with
-// native_x_renderer_shadow_scale = 4, and their image is right.
-inline constexpr bool kShadowQuality = kHasNativeXRenderer && false;
+// native_x_renderer_shadow_scale = 4, and their image is right: here GH5's 400x400 map (EDRAM base 1709), the only one
+// found in Party Play (2026-11-08), with GH5's filter fix (GHBandHeroShadowFilterHook). Ultra draws it at 1600x1600.
+inline constexpr bool kShadowQuality = kHasNativeXRenderer && true;
 
 // The Graphics page's frame rate row: kFrameRateCvar's choices (game_types.h's FrameRate) and the value without the
 // key. Here src/framerate.cpp's ghbandhero_frame_rate, the frame rate itself: 60 as on the console, above it the emulated

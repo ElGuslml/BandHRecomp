@@ -9,6 +9,7 @@ projects.
 
 | Note | Status |
 |---|---|
-| [The fixes ported from Guitar Hero 5](fixes-from-gh5.md) | In testing: the threads' waits, the song clock, the audio, the guitar, the keyboard, the controllers, frame rates above 60, ultrawide, the screen effects' switches, quitting from the main menu; checked by the tools, not yet by a player |
-| [NativeXRenderer in Band Hero](native-x-renderer-ghbandhero.md) | Working: GH5's map and profile, translated, with FXAA and SMAA as GH Warriors of Rock; the observer at 100 % |
+| [The fixes ported from Guitar Hero 5](fixes-from-gh5.md) | In testing: the threads' waits, the song clock, the audio, the guitar, the keyboard, the controllers, frame rates above 60 (the camera cuts, the drummer, the frames' real length), ultrawide, the screen effects' switches, quitting from the main menu; checked by the tools, not yet by a player |
+| [NativeXRenderer in Band Hero](native-x-renderer-ghbandhero.md) | Working, the default renderer: GH5's map and profile, translated; SMAA and FXAA on the scene's copy; shadow quality with GH5's filter fix; the observer at 100 % |
+| [Clothes shooting out for a frame](clothes-stretching.md) | GH5's fix: the skinning waits for the animation that writes its bones |
 | [Downloadable content](dlc.md) | Not tested: GH5's page, unchanged |

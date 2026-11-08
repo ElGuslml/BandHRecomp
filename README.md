@@ -18,7 +18,8 @@ compiled; the Xbox 360 GPU is emulated by ReXGlue's Xenos backend (derived from 
   renderers, driven by tools: **nobody has played it yet**.
 - Band Hero is Guitar Hero 5's code base one step on, so [GH5Recomp](https://github.com/ElGuslml/GH5Recomp)'s fixes were
   ported with every address translated: the threads' waits, the song's clock, the guitar, frame rates above 60,
-  ultrawide, the screen effects' switches, the quit prompt, NativeXRenderer.
+  ultrawide, the screen effects' switches, the quit prompt, the skinning order, NativeXRenderer (the default renderer,
+  with antialiasing and a shadow quality setting).
 - [`docs/`](docs/README.md) has a short note on each problem found and what was done about it.
 
 ## Requirements

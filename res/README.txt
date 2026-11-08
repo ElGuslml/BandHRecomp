@@ -48,6 +48,10 @@ and then "Run anyway" in the warning (once for each program).
 OPTIONS IN Band Hero Launcher
 
 - Language: the game's languages.
+- Renderer: NativeXRenderer (the default) draws the game natively with Vulkan, with antialiasing (SMAA or
+  FXAA); Xenos emulates the Xbox 360 GPU instead (DirectX 12 or Vulkan): choose it if something looks wrong
+  with NativeXRenderer.
+- Shadow quality (NativeXRenderer): the shadows drawn at up to four times the original resolution.
 - Internal resolution: the game's image rendered at 2x or 3x and fitted to the screen.
 - Anisotropic filtering: 16x by default (sharper textures at oblique angles).
 - Graphics API: DirectX 12 (recommended) or Vulkan.

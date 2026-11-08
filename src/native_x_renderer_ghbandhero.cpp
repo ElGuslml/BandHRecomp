@@ -14,6 +14,8 @@
 #include "native_x_renderer_ghbandhero.h"
 
 #include <native_x_renderer/hooks.h>
+#include <rex/cvar.h>
+#include <rex/ppc/context.h>
 
 // Draws. DrawVerticesUP and DrawIndexedVerticesUP (sub_8230CA80, 4 engine sites, no call of its own) commit their
 // packets with an inlined EndVertices ([dev+48] = [dev+13444]); the engine's three BeginVertices / EndVertices pairs
@@ -72,6 +74,27 @@ NATIVE_X_RENDERER_HOOK(8231B548, QueryGetData)
 NATIVE_X_RENDERER_HOOK(82320528, Swap)
 NATIVE_X_RENDERER_HOOK(82320958, Present)
 
+// The shadows' filter follows the map (a shadow quality above Original, D92; GH5's cdec72f). The characters' shadows are
+// read by a pixel shader in 4, 9 or 16 samples (the count at 0x82B27048), each compared with the pixel's depth: sub_825C8558
+// (GH5's sub_825CCE98, grown) sets their offsets from the shadow map's texel size, one texel of the 400x400 map apart,
+// 1/400. A map drawn four times as large kept those offsets: in GH5 its samples fell four texels apart, three stepped
+// copies of each edge instead of a soft one (Gustavo: better, still pixelated). The offsets are divided by the shadow
+// scale, so the samples are neighbours on the larger map again.
+REXCVAR_DEFINE_BOOL(ghbandhero_shadow_filter_fix, true, "GHBandHero",
+                    "With a shadow quality above Original, the filter of the shadows follows the map's size: sharper "
+                    "edges (false = its width as on the console)");
+
+// [[midasm_hook]] 0x825C8758 (sub_825C8558): after "lfs f0,172(r1)" and "lfs f31,168(r1)", f31 and f0 = the shadow map's
+// texel size (x, y; GH5 holds them in f0 and f12).
+void GHBandHeroShadowFilterHook(PPCRegister& f0, PPCRegister& f31) {
+  static const double scale =
+      rex::cvar::Query<bool>("native_x_renderer") ? rex::cvar::Query<double>("native_x_renderer_shadow_scale") : 0.0;
+  if (scale > 1.0 && REXCVAR_GET(ghbandhero_shadow_filter_fix)) {
+    f0.f64 = double(float(f0.f64 / scale));
+    f31.f64 = double(float(f31.f64 / scale));
+  }
+}
+
 namespace ghbandhero {
 
 const native_x_renderer::Profile& NativeXRendererProfile() {
@@ -81,12 +104,16 @@ const native_x_renderer::Profile& NativeXRendererProfile() {
     p.xdk_version = "2.0.8276";
     p.output_width = 1280;  // the presentation parameters come from a video-mode table at run time
     p.output_height = 720;
-    // The finished scene's copy, before the HUD and the note highway: every resolve goes through the render targets'
-    // helper sub_82566170 (its color resolve returns to 0x8256620C), as in GH5 and GH WoR, and the game alternates two
-    // kinds of frame, both shown, that copy the scene from different places into the same 1280x720 texture. Antialiasing
-    // one of them only would leave every other frame's edges as they were, so, as GH WoR, every copy through the helper
-    // of the output's size is antialiased (NativeXRenderer takes no other), and the HUD and the highway are drawn after.
+    // The whole scene's copy, before the post-processing, the HUD and the note highway (GH5's choice, 575136e). The
+    // engine resolves it through the render targets' helpers sub_82566918 -> sub_82566170, so the outer caller names it
+    // too; the same pair also copies the 320x180 passes (the size rule leaves them out) and the composite's first pass
+    // into the same texture (the second 1280x720 copy of the frame: scene_resolve_once). Not a later copy: 0x8255F17C <
+    // 0x825659CC, the finished image, is read only by the next frame, so it would antialias every other frame. The frames
+    // that draw only the stage and the crowd copy theirs from 0x82566A78: not taken, the band's frame restores them and
+    // copies the whole scene here.
     p.scene_resolve_caller = 0x8256620C;
+    p.scene_resolve_outer_caller = 0x8256694C;
+    p.scene_resolve_once = true;
     // The ultrawide hooks (src/widescreen.cpp) widen the 16:9 cameras by AspectFactor() and keep the 2D layer at
     // 16:9 in the center: NativeXRenderer may fill a wider output (native_x_renderer_fill_screen).
     p.widens_cameras = true;

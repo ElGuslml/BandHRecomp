@@ -176,6 +176,12 @@ registers = ["r3", "r4"]
 address = 0x82573884   # addi r11,r11,-1 (sub_82573840: a game-frame wait's count above 0, r3 = the wait)
 name = "GHBandHeroFrameWaitCountHook"
 registers = ["r3", "r11"]
+# The drummer's script waits 1 frame, a timed wait: above 60 Hz a real frame, so that the step it measures is what a pass took.
+[[midasm_hook]]
+address = 0x824ABA68   # Wait (sub_824AB8C0), units frame and frames: lis r11,-32256 (r30 = the script)
+name = "GHBandHeroDrummerWaitHook"
+registers = ["r30"]
+jump_address_on_true = 0x824ABAA8   # its game-frame wait, the same N
 # Button presses polled by scripts (ControllerMake) last one frame: a script whose waits are held above 60 Hz is given
 # the presses of the frames it skipped.
 [[midasm_hook]]
@@ -189,8 +195,14 @@ registers = ["r4"]
 [[midasm_hook]]
 address = 0x824C0830   # addi r1,r1,112 (sub_824C0770's exit, every path)
 name = "GHBandHeroButtonPollEndHook"
+# The frames' real length (src/framerate.cpp: what is counted in frames above 60 Hz keeps the console's time by it when
+# the frame rate falls below the chosen one), measured once a frame on the main thread.
+[[midasm_hook]]
+address = 0x82414184   # addi r1,r1,128 (sub_82414058: the main thread's frame, at its end)
+name = "GHBandHeroMainFrameHook"
 # The whammy on a sustain is told by the frame (the bar's movement since the previous frame, a countdown of 5 frames,
-# 5 frames in a row to turn a star power sustain blue or back): above 60 Hz over a 60th of a second and 5 / 60 s.
+# 5 frames in a row to turn a star power sustain blue or back): above 60 Hz over a 60th of a second and 5 / 60 s, in
+# frames of their measured length.
 [[midasm_hook]]
 address = 0x821D51F8   # mflr r12 (sub_821D51F8: a player's update in a song, every frame; src/keyboard.cpp)
 name = "GHBandHeroSongFrameHook"
@@ -223,14 +235,15 @@ address = 0x821E1F00   # stwx r9,r31,r8 (sub_821E1D48: the whammy countdown, 5 f
 name = "GHBandHeroWhammyCountdownHook"
 registers = ["r9"]
 [[midasm_hook]]
-address = 0x821E9DE0   # cmpwi cr6,r11,5 (sub_821E9C30: frames in a row of whammying)
+address = 0x821E9DE0   # cmpwi cr6,r11,5 (sub_821E9C30: frames in a row of whammying, r30 = the count's address)
 name = "GHBandHeroWhammyStateHook"
-registers = ["r11"]
+registers = ["r30", "r11"]
 [[midasm_hook]]
-address = 0x821E9EC0   # cmpwi cr6,r11,5 (sub_821E9C30: frames in a row of not whammying)
+address = 0x821E9EC0   # cmpwi cr6,r11,5 (sub_821E9C30: frames in a row of not whammying, r10 = the count's address)
 name = "GHBandHeroWhammyStateHook"
-registers = ["r11"]
-# The loading screen's animations step by the frame: above 60 Hz the steps are scaled by 60 / the rate.
+registers = ["r10", "r11"]
+# The loading screen's animations step by the frame: above 60 Hz each step is scaled by the frame's length in 60ths of a
+# second, each animation measuring its own frames (the render thread draws it while the main thread loads).
 [[midasm_hook]]
 address = 0x825DB664   # after lfd f31,-24376(r10) (sub_825DB550: the boot's spinning star, f31 = its turn each frame, 0.175 radians)
 name = "GHBandHeroLoadingStarHook"
@@ -245,7 +258,7 @@ name = "GHBandHeroLoadingWaveHook"
 registers = ["f29"]
 [[midasm_hook]]
 address = 0x825DBB00   # fadds f0,f13,f0 (sub_825DB8C8's mode 2: the other phase plus its step, f0)
-name = "GHBandHeroLoadingWaveHook"
+name = "GHBandHeroLoadingWave2Hook"
 registers = ["f0"]
 
 # The screen effects each turned off by an option (src/screen_fx.cpp, ghbandhero_fx_*): the effects' composite
@@ -281,3 +294,9 @@ registers = ["f1"]
 address = 0x821B386C   # lwz r11,284(r31) (sub_821B3830, after the call returning the strings' fade, 0.99 a frame)
 name = "GHBandHeroStringFadeHook"
 registers = ["f1"]
+
+# NativeXRenderer's shadow quality (src/native_x_renderer_ghbandhero.cpp): the shadows' filter follows the map's size.
+[[midasm_hook]]
+address = 0x825C8758   # fmr f30,f0 (sub_825C8558, after the shadow map's texel size is loaded: f31 = x, f0 = y)
+name = "GHBandHeroShadowFilterHook"
+registers = ["f0", "f31"]
