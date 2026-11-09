@@ -5,7 +5,7 @@
 #pragma once
 
 #define GAME_TITLE "Band Hero"
-#define GAME_EXE "GHBandHeroRecomp.exe"
+#define GAME_EXE "BandHeroRecomp.exe"
 #define GAME_LAUNCHER "Band Hero Launcher"
 // The game's executable in the game files (assets/): the code is recompiled from it.
 #define GAME_XEX "default.xex"

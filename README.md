@@ -1,11 +1,11 @@
 <p align="center">
-  <img src="res/icon.svg" width="200" alt="GHBandHRecomp icon">
+  <img src="res/icon.svg" width="200" alt="BandHRecomp icon">
 </p>
 
-<h1 align="center">GHBandHRecomp</h1>
+<h1 align="center">BandHRecomp</h1>
 
 <p align="center">
-  <a href="https://github.com/ElGuslml/GHBandHRecomp/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ElGuslml/GHBandHRecomp?style=for-the-badge&label=Latest%20release&color=ff3d9a"></a>
+  <a href="https://github.com/ElGuslml/BandHRecomp/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ElGuslml/BandHRecomp?style=for-the-badge&label=Latest%20release&color=ff3d9a"></a>
   <a href="https://discord.gg/XQtM5TmNs8"><img alt="Discord: join the server" src="https://img.shields.io/badge/Discord-Join%20the%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white"></a>
   <a href="https://ko-fi.com/elguslml"><img alt="Ko-fi: support me" src="https://img.shields.io/badge/Ko--fi-Support%20me-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white"></a>
   <a href="https://x.com/ElGuslml"><img alt="X: follow @ElGuslml" src="https://img.shields.io/badge/X-Follow%20%40ElGuslml-000000?style=for-the-badge&logo=x&logoColor=white"></a>
@@ -33,15 +33,15 @@ emulator to set up, sharp graphics, wide screens, high frame rates, and your Xbo
 
 > [!WARNING]
 > ⚠️ **Not tested yet:** AMD graphics cards (only in a simulation so far) and drum kits. If you play with either and
-> something goes wrong, please report it in [issues](https://github.com/ElGuslml/GHBandHRecomp/issues) or on
+> something goes wrong, please report it in [issues](https://github.com/ElGuslml/BandHRecomp/issues) or on
 > [Discord](https://discord.gg/XQtM5TmNs8).
 
 ## 🎮 How to play
 
-1. **Download** the latest version from [Releases](https://github.com/ElGuslml/GHBandHRecomp/releases/latest):
-   - **the installer** (`GHBandHRecomp-...-setup.exe`): installs for your Windows user, no administrator rights needed,
+1. **Download** the latest version from [Releases](https://github.com/ElGuslml/BandHRecomp/releases/latest):
+   - **the installer** (`BandHRecomp-...-setup.exe`): installs for your Windows user, no administrator rights needed,
      with a Start menu shortcut; or
-   - **the zip** (`GHBandHRecomp-...-win64.zip`): extract it into any folder you can write to (not `Program Files`).
+   - **the zip** (`BandHRecomp-...-win64.zip`): extract it into any folder you can write to (not `Program Files`).
 2. **Open Band Hero Launcher.** The first time, it asks for the ISO of your game, checks it and installs the game files
    (about 5.1 GB), then asks you to create your profile. You only do this once.
 3. **Pick your settings and press PLAY.** 🎉
@@ -163,7 +163,7 @@ Your choices are saved as soon as you make them. When you quit the game, the lau
 ## 🐞 Reporting a problem
 
 Something looks wrong, sounds wrong, or crashes? Tell us on [Discord](https://discord.gg/XQtM5TmNs8) or open an
-[issue](https://github.com/ElGuslml/GHBandHRecomp/issues), with:
+[issue](https://github.com/ElGuslml/BandHRecomp/issues), with:
 - where in the game it happened, and a screenshot if you can;
 - the latest files in the `logs` folder next to the game: `ghbandhero_NNN.log`, and if the launcher misbehaved,
   `launcher_NNN.log` (with its `.dmp` file if there is one).
@@ -193,7 +193,7 @@ recompiled games are at [ElGus Recomps](https://github.com/ElGuslml/ElGusRecomps
 
 ## 🛠️ For developers
 
-GHBandHRecomp is a *static recompilation*: the game's original Xbox 360 code is translated to C++ and compiled for
+BandHRecomp is a *static recompilation*: the game's original Xbox 360 code is translated to C++ and compiled for
 Windows, on top of the [ReXGlue SDK](https://github.com/rexglue/rexglue-sdk). It is drawn by
 [NativeXRenderer](https://github.com/ElGuslml/NativeXRenderer), a renderer that draws the game's graphics calls
 natively on Vulkan.
@@ -230,7 +230,7 @@ subject for many people, so I want to be open about it and explain how the work 
 - 🙌 **Claude helps with the research and the code;** the decisions, the testing and the care for the game are mine.
 
 If something doesn't run as well as it should, it's a bug like any other: tell us on
-[Discord](https://discord.gg/XQtM5TmNs8) or open an [issue](https://github.com/ElGuslml/GHBandHRecomp/issues), and
+[Discord](https://discord.gg/XQtM5TmNs8) or open an [issue](https://github.com/ElGuslml/BandHRecomp/issues), and
 it will get fixed. Thanks for giving this game a try! 💖
 
 ## 🙏 Credits

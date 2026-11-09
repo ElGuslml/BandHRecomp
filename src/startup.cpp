@@ -55,7 +55,7 @@ constexpr uint32_t kGameExecutableCrc32 = 0x57900866;
 // when something draws wrong, try the SDK default of each one from the command line first. Each comment says what
 // the setting does and what the other value gives back.
 constexpr const char kDefaultConfig[] =
-    R"(# GHBandHeroRecomp.exe runtime configuration, loaded at startup. The game recreates this file with these
+    R"(# BandHeroRecomp.exe runtime configuration, loaded at startup. The game recreates this file with these
 # defaults if it is missing, and adds the settings an existing file lacks. Band Hero Launcher saves its choices to
 # ghbandhero_options.toml, which is loaded after this file; command line options (--name=value) win over both.
 log_level = "info"

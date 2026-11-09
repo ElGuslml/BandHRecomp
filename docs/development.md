@@ -1,6 +1,6 @@
-# Building and developing GHBandHRecomp
+# Building and developing BandHRecomp
 
-GHBandHRecomp is a static recompilation of **Band Hero** (Xbox 360, 2009) to native Windows, built on the
+BandHRecomp is a static recompilation of **Band Hero** (Xbox 360, 2009) to native Windows, built on the
 [ReXGlue SDK](https://github.com/rexglue/rexglue-sdk). The game's PowerPC code is translated to C++ and compiled. It is
 drawn by [NativeXRenderer](native-x-renderer-ghbandhero.md) (Vulkan), which draws the game's Direct3D calls on the PC's
 GPU; ReXGlue's emulation of the Xbox 360 GPU, Xenos (derived from [Xenia](https://xenia.jp)), is the alternative. Band
@@ -16,14 +16,14 @@ ported to it with their addresses translated ([`fixes-from-gh5.md`](fixes-from-g
 - Your own copy of the game: extract the content of your disc or ISO with
   [extract-xiso](https://github.com/XboxDev/extract-xiso/releases) and copy all of it into `assets/`, so that
   `assets/default.xex` exists (title ID `4156085C`, version 0.0.0.1, XDK 2.0.8276). The expected executable has
-  CRC32 `57900866`; `GHBandHeroRecomp.exe` warns at startup if yours is a different version. See
+  CRC32 `57900866`; `BandHeroRecomp.exe` warns at startup if yours is a different version. See
   [`assets/README.md`](../assets/README.md).
 
 ## Building
 
 ```powershell
-git clone --recursive https://github.com/ElGuslml/GHBandHRecomp
-cd GHBandHRecomp
+git clone --recursive https://github.com/ElGuslml/BandHRecomp
+cd BandHRecomp
 # copy your game files into assets\ first: the build recompiles assets\default.xex
 cmake --preset win-amd64-release
 cmake --build --preset win-amd64-release
@@ -38,19 +38,19 @@ cmake --build --preset win-amd64-release
 
 ```powershell
 .\out\build\win-amd64-release\"Band Hero Launcher.exe"   # choose the options, then Play
-.\out\build\win-amd64-release\GHBandHeroRecomp.exe       # or start the game directly with the saved options
+.\out\build\win-amd64-release\BandHeroRecomp.exe       # or start the game directly with the saved options
 ```
 
-- Game files are found in `assets\` next to `GHBandHeroRecomp.exe`, otherwise in the repository's `assets\`.
+- Game files are found in `assets\` next to `BandHeroRecomp.exe`, otherwise in the repository's `assets\`.
   `--game_data_root=<folder>` points somewhere else. `"Band Hero Launcher.exe" --launcher_first_run` installs them
   again from an ISO.
 - The saves, the achievements and the playtime go to the current profile of the launchers' shared store
-  (`%APPDATA%\ElGuslml Recomps`); the shader cache to `userdata\` next to `GHBandHeroRecomp.exe` (if that folder
+  (`%APPDATA%\ElGuslml Recomps`); the shader cache to `userdata\` next to `BandHeroRecomp.exe` (if that folder
   cannot be written, for example under Program Files, to `Documents\ghbandhero`). Logs go to `logs\`.
 
 ## Configuration
 
-| File (next to `GHBandHeroRecomp.exe`) | What it holds |
+| File (next to `BandHeroRecomp.exe`) | What it holds |
 |---|---|
 | `ghbandhero.toml` | Base settings. Created with the defaults if it is missing; a default setting the file lacks is appended at startup. |
 | `ghbandhero_options.toml` | What Band Hero Launcher saves. Loaded after `ghbandhero.toml`. |

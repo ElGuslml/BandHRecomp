@@ -80,8 +80,8 @@ inline constexpr int kFrameHeight = GAME_FRAME_HEIGHT;
 // This project's releases (updater.cpp): GitHub's API for them, newest first, and their page. Empty: the launcher
 // does not look for updates, and its Updates page only shows the version. Set from the first release on, while the
 // repository is still private (the check fails until it is public, and the releases made then are found).
-inline constexpr const char* kReleasesApi = "https://api.github.com/repos/ElGuslml/GHBandHRecomp/releases?per_page=20";
-inline constexpr const char* kReleasesPage = "https://github.com/ElGuslml/GHBandHRecomp/releases";
+inline constexpr const char* kReleasesApi = "https://api.github.com/repos/ElGuslml/BandHRecomp/releases?per_page=20";
+inline constexpr const char* kReleasesPage = "https://github.com/ElGuslml/BandHRecomp/releases";
 
 // --- The game's own options (a cvar each; empty: the game has no such option, and the launcher no row) ---
 

@@ -1,11 +1,11 @@
-﻿; GHBandHRecomp's installer (Inno Setup 6.6 or later). recomp-tools' tools\release\Package-Release.ps1 builds it from the
+﻿; BandHRecomp's installer (Inno Setup 6.6 or later). recomp-tools' tools\release\Package-Release.ps1 builds it from the
 ; release folder it has just made, when Inno Setup is installed:
 ;   ISCC /DAppVersion=0.2.0 /DSourceDir=<release folder> /DOutputDir=<folder> installer\ghbandhero.iss
 ;
 ; - It installs only this project's files (the release folder: the executables, the DLLs, the documents, the
 ;   licenses, assets\README.md). The game's files come from the player's ISO: the launcher asks for it on its first
 ;   run.
-; - For the current user, without administrator rights, in %LOCALAPPDATA%\Programs\GHBandHRecomp: the game writes its
+; - For the current user, without administrator rights, in %LOCALAPPDATA%\Programs\BandHRecomp: the game writes its
 ;   saves next to itself (userdata\) and the launcher updates the files in place, which Program Files would not allow.
 ; - Installing a newer version over an installation (or over a portable folder) keeps the saves, the settings and the
 ;   game files.
@@ -19,9 +19,9 @@
 #define AppName "Band Hero"
 #define ShortcutName "Band Hero"
 #define LauncherExe "Band Hero Launcher.exe"
-; The project's public repository, once there is one ("https://github.com/<user>/GHBandHRecomp"): the links of the
+; The project's public repository, once there is one ("https://github.com/<user>/BandHRecomp"): the links of the
 ; uninstall entry.
-#define RepoUrl "https://github.com/ElGuslml/GHBandHRecomp"
+#define RepoUrl "https://github.com/ElGuslml/BandHRecomp"
 
 [Setup]
 ; Never change the AppId: Windows knows the installation by it, and a newer installer finds the older one with it.
@@ -38,7 +38,7 @@ AppUpdatesURL={#RepoUrl}/releases
 VersionInfoVersion={#AppVersion}.0
 VersionInfoDescription={#AppName} (Recomp) setup
 PrivilegesRequired=lowest
-DefaultDirName={autopf}\GHBandHRecomp
+DefaultDirName={autopf}\BandHRecomp
 DisableProgramGroupPage=yes
 ; The welcome page says what the installer does not bring (Inno Setup 6 hides it by default).
 DisableWelcomePage=no
@@ -59,7 +59,7 @@ RestartApplications=no
 Compression=lzma2/max
 SolidCompression=yes
 OutputDir={#OutputDir}
-OutputBaseFilename=GHBandHRecomp-v{#AppVersion}-setup
+OutputBaseFilename=BandHRecomp-v{#AppVersion}-setup
 ShowLanguageDialog=auto
 
 [Languages]

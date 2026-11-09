@@ -1,6 +1,6 @@
 # Third-party notices
 
-GHBandHRecomp's own code is under the MIT license (see `LICENSE`). The executables built from this
+BandHRecomp's own code is under the MIT license (see `LICENSE`). The executables built from this
 repository also contain the following software, each under its own license. Full license texts are in the
 `thirdparty/rexglue-sdk` submodule at the paths given below; binary releases ship them in a `licenses/`
 folder.

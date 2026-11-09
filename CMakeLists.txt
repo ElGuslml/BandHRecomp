@@ -1,4 +1,4 @@
-# GHBandHRecomp - static recompilation of Band Hero (Xbox 360), built on the ReXGlue SDK, drawn by the SDK's Xenos
+# BandHRecomp - static recompilation of Band Hero (Xbox 360), built on the ReXGlue SDK, drawn by the SDK's Xenos
 # emulation or by NativeXRenderer (native_x_renderer/, a submodule).
 #
 # The SDK is the thirdparty/rexglue-sdk git submodule: ElGuslml/rexglue-sdk, branch recomp, the official
@@ -98,20 +98,20 @@ native_x_renderer_copy_runtime(ghbandhero)
 
 # The target and the app keep the short name "ghbandhero" (ghbandhero.toml, logs\ghbandhero_NNN.log); only the
 # executable gets a descriptive name.
-set_target_properties(ghbandhero PROPERTIES OUTPUT_NAME "GHBandHeroRecomp")
+set_target_properties(ghbandhero PROPERTIES OUTPUT_NAME "BandHeroRecomp")
 
 # With the SDK built from source, rexruntime does not pass the Dear ImGui include directory on to the
 # host target (the installed SDK ships imgui.h in include/); rex_app.cpp and ghbandhero_app.h need it. The
 # symbols still come from rexruntime.dll.
 target_include_directories(ghbandhero PRIVATE "${REXSDK_DIR}/thirdparty/imgui")
 
-# Game files: assets/ next to GHBandHeroRecomp.exe (release layout) or, if absent, the repository's assets/.
+# Game files: assets/ next to BandHeroRecomp.exe (release layout) or, if absent, the repository's assets/.
 target_compile_definitions(ghbandhero PRIVATE
     GHBANDHERO_DEFAULT_GAME_ROOT="${CMAKE_CURRENT_SOURCE_DIR}/assets")
 
 # Band Hero Launcher: the options, the first run from the player's ISO, the achievements and the updates, in a separate
-# executable so that GHBandHeroRecomp.exe starts right away (for example from Steam Big Picture); "Play" starts the game, and
-# the launcher comes back when it closes. It writes ghbandhero_options.toml next to GHBandHeroRecomp.exe. The launcher's
+# executable so that BandHeroRecomp.exe starts right away (for example from Steam Big Picture); "Play" starts the game, and
+# the launcher comes back when it closes. It writes ghbandhero_options.toml next to BandHeroRecomp.exe. The launcher's
 # code is the RecompLauncher submodule (recomp_launcher/, the same in every game); the game's own names, files and
 # options are launcher/game.h (with src/project.h, which the game shares) and launcher/game.cpp, its colors
 # launcher/palette.h, its art launcher/art/, its resources res/launcher.rc. RECOMP_LAUNCHER_DIR points elsewhere to try

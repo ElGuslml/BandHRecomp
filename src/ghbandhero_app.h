@@ -40,7 +40,7 @@ class GhbandheroApp : public rex::ReXApp {
     }
   }
 
-  // Game files: without --game_data_root, assets/ next to GHBandHeroRecomp.exe or the repository's assets/. User data
+  // Game files: without --game_data_root, assets/ next to BandHeroRecomp.exe or the repository's assets/. User data
   // (shader cache, downloadable content; the saves and achievements before the profiles): userdata/ next to the
   // executable; the saves, settings and achievements in the launchers' current profile (src/startup.cpp).
   void OnConfigurePaths(rex::PathConfig& paths) override {

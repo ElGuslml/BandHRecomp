@@ -28,12 +28,12 @@ BEGIN
   BEGIN
     BLOCK "040904B0"
     BEGIN
-      VALUE "FileDescription", "Band Hero Launcher - options for GHBandHRecomp"
+      VALUE "FileDescription", "Band Hero Launcher - options for BandHRecomp"
       VALUE "FileVersion", RECOMP_LAUNCHER_VERSION_STR
-      VALUE "ProductName", "GHBandHRecomp"
+      VALUE "ProductName", "BandHRecomp"
       VALUE "ProductVersion", RECOMP_VERSION_STR
       VALUE "OriginalFilename", "Band Hero Launcher.exe"
-      VALUE "LegalCopyright", "GHBandHRecomp code: MIT License."
+      VALUE "LegalCopyright", "BandHRecomp code: MIT License."
     END
   END
   BLOCK "VarFileInfo"

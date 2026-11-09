@@ -9,7 +9,7 @@ pipeline it compiled (`userdata\cache\native_x_renderer\4156085C.pipelines`) and
 a first time stutters.
 
 **Fix (NativeXRenderer D129-D133, launcher 3.14.0; as in GH Metallica, 2026-11-08).** The game ships a list of the
-pipelines found while playing it, `4156085C.pipelines.list` beside `GHBandHeroRecomp.exe`. It names each shader by a hash of its code: the
+pipelines found while playing it, `4156085C.pipelines.list` beside `BandHeroRecomp.exe`. It names each shader by a hash of its code: the
 code itself comes from the player's own game files (`data\fxfiles\MaterialLibrary.bin.xen`, where the game keeps all of its shaders), so nothing of the game is in it. The first
 time Play is pressed, the launcher shows "Compiling shaders" while the game's executable, without a window, rebuilds
 those shaders, compiles every listed pipeline and the ones stored before for this graphics card and driver, and saves the
@@ -24,4 +24,4 @@ from parts in microseconds (Vulkan's graphics pipeline libraries) while its opti
 **How to turn it off.** Skip on that screen starts the game at once; it then compiles at its draws, as before. Without the
 list file, or with the Xenos renderer, the launcher does not show it. Started without the launcher, the game does what it
 did before. `native_x_renderer_pipeline_library = off` (in `ghbandhero.toml`) compiles every pipeline whole. The tool can be run by
-hand: `GHBandHeroRecomp.exe --native_x_renderer_prepare_pipelines=progress.txt`.
+hand: `BandHeroRecomp.exe --native_x_renderer_prepare_pipelines=progress.txt`.

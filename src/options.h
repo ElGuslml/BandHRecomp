@@ -1,7 +1,7 @@
 // ghbandhero - Band Hero Launcher options.
 //
 // The launcher is a separate executable ("Band Hero Launcher.exe", launcher/) that writes
-// ghbandhero_options.toml next to GHBandHeroRecomp.exe. The game executable only loads it, after ghbandhero.toml and before the
+// ghbandhero_options.toml next to BandHeroRecomp.exe. The game executable only loads it, after ghbandhero.toml and before the
 // window and the GPU are created (which is when those options are read), and starts right away without showing
 // anything, so it can be launched from Steam Big Picture without a mouse.
 

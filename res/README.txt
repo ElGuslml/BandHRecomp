@@ -1,8 +1,8 @@
-GHBandHRecomp {VERSION} - Band Hero (Xbox 360), for Windows
+BandHRecomp {VERSION} - Band Hero (Xbox 360), for Windows
 ========================================================================
 
 A static recompilation of the Xbox 360 game to native Windows. The game's code is already translated and
-compiled into GHBandHeroRecomp.exe: you do not need to compile anything. You do need your own copy of the game,
+compiled into BandHeroRecomp.exe: you do not need to compile anything. You do need your own copy of the game,
 because this package contains no game files.
 
 This is a beta. Not affiliated with Microsoft, Activision or the game's developers.
@@ -24,8 +24,8 @@ REQUIREMENTS
 
 INSTALLATION
 
-1. Either run the installer (GHBandHRecomp-{VERSION}-setup.exe: it installs for your Windows user, without
-   administrator rights), or extract this zip to any folder, for example C:\Games\GHBandHRecomp.
+1. Either run the installer (BandHRecomp-{VERSION}-setup.exe: it installs for your Windows user, without
+   administrator rights), or extract this zip to any folder, for example C:\Games\BandHRecomp.
 
 2. Run "Band Hero Launcher.exe". The first time, it asks for your Xbox 360 ISO, checks that it is the right
    game and extracts its files next to the launcher, then asks you to create your profile (your saves,
@@ -35,7 +35,7 @@ INSTALLATION
    folder, so that assets\default.xex exists (extract-xiso, https://github.com/XboxDev/extract-xiso/releases,
    gets them out of an ISO).
 
-3. Choose your options and press PLAY. Next time you can start GHBandHeroRecomp.exe directly: it uses the
+3. Choose your options and press PLAY. Next time you can start BandHeroRecomp.exe directly: it uses the
    options you saved.
 
 4. Calibrate: in the game's options, run the audio and video calibration once, so that the notes match what
@@ -137,7 +137,7 @@ the main menu.
 
 STEAM BIG PICTURE
 
-Add GHBandHeroRecomp.exe as a non-Steam game: it starts straight into the game with the options saved by
+Add BandHeroRecomp.exe as a non-Steam game: it starts straight into the game with the options saved by
 Band Hero Launcher. You can also add "Band Hero Launcher.exe" to change options with a controller.
 
 
@@ -183,5 +183,5 @@ MORE INFORMATION
 
 {MORE_INFO}
 
-GHBandHRecomp's own code is under the MIT license (LICENSE). It is built on the ReXGlue SDK and other
+BandHRecomp's own code is under the MIT license (LICENSE). It is built on the ReXGlue SDK and other
 components under their own licenses: see THIRD_PARTY_NOTICES.md and the "licenses" folder.

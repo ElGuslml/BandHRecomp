@@ -4,7 +4,7 @@
 that game installs and its songs show, but no package has been tried in this game yet.
 
 Band Hero Launcher's DLC page installs Xbox 360 content packages (STFS: LIVE, PIRS or CON) with the game itself:
-`GHBandHeroRecomp.exe --install_content=<package>` extracts one into
+`BandHeroRecomp.exe --install_content=<package>` extracts one into
 
     userdata\0000000000000000\4156085C\00000002\<package name>\
 

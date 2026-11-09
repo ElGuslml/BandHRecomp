@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" width="256" height="256">
-  <!-- The GHBandHRecomp icon: a guitar pick with two beamed notes on a riveted steel medallion. From Band Hero Launcher's
+  <!-- The BandHRecomp icon: a guitar pick with two beamed notes on a riveted steel medallion. From Band Hero Launcher's
        art (launcher/art/background.svg): its pink, its notes, its night-purple stage and its rainbow rays, drawn for
        this project (no art from the game); GHMetalRecomp's, GHVanHRecomp's, GH5Recomp's and GHWoRRecomp's icon with its
        own pick. res/make_icon.mjs builds res/icon.ico from this file (40 px and up) and icon_small.svg (16-32 px). -->
