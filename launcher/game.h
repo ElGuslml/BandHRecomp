@@ -34,20 +34,27 @@ inline constexpr const char* kVersion = RECOMP_VERSION_STR;
 
 // --- The look ---
 
-// The title the Play page shows over the art: a small line above, the name below.
+// The title the Play page shows over the art: a small line above, the name below. No line above, as GH5's (the
+// mockup's "Toca con toda tu banda" would stay Spanish in every language).
 inline constexpr const char* kArtKicker = "";
 inline constexpr const char* kArtTitle = "Band Hero";
+// The title's size in dp (RecompLauncher 3.14.1; 96 without it): at 96 Oswald's "BAND HERO" ends over the art's bass in
+// a 1280x760 window; at 84 it ends beside it, as the mockup's (Gustavo's choice, 2026-11-09).
+inline constexpr float kArtTitleSize = 84.0f;
 // The mark in the header's logo while the game's icon is unknown: an icon's SVG paths in a 24-unit box, stroked as the
-// launcher's icons are (ui.cpp). A disc, until the game has its own.
+// launcher's icons are (ui.cpp). A guitar pick with a star (the mockup's, local_docs/launcher_design; GH5's too).
 inline constexpr const char* kBrandIcon =
-    "<circle cx='12' cy='12' r='9'/><circle cx='12' cy='12' r='2.5'/><path d='M12 3a9 9 0 0 1 9 9'/>";
+    "<path d='M12 21c-4-4-8-9-8-13 0-3 4-5 8-5s8 2 8 5c0 4-4 9-8 13z'/>"
+    "<path d='M12 6.5l1.2 2.6 2.8.3-2.1 1.9.6 2.8-2.5-1.4-2.5 1.4.6-2.8-2.1-1.9 2.8-.3z'/>";
 // The header's name beside the logo, on two lines (in capitals); an empty title: the art's (kArtTitle) alone.
-inline constexpr const char* kBrandTitle = "";
-inline constexpr const char* kBrandSubtitle = "Band Hero";
+inline constexpr const char* kBrandTitle = "Band Hero";
+inline constexpr const char* kBrandSubtitle = "Launcher";
 // Where the art under the pages (launcher\art\background.svg, 1280 x 760) is cropped in a window of another shape: the
-// point kept in view, as fractions of its width and height.
-inline constexpr float kArtFocusX = 0.75f;
-inline constexpr float kArtFocusY = 0.6f;
+// point kept in view, as fractions of its width and height. The instruments, their rings and stars (82..531 of the
+// art's rows): in a 21:9 window (536 rows shown) they are centered between the header and the footer; the sides are
+// cropped evenly, as the mockup's cards and title sit.
+inline constexpr float kArtFocusX = 0.5f;
+inline constexpr float kArtFocusY = 0.14f;
 // The logo's mark on a disc instead of a rounded square.
 inline constexpr bool kBrandRound = false;
 // The titles in capitals (the game's own texts that the launcher shows as titles).
@@ -71,11 +78,10 @@ inline constexpr int kFrameHeight = GAME_FRAME_HEIGHT;
 // --- Updates ---
 
 // This project's releases (updater.cpp): GitHub's API for them, newest first, and their page. Empty: the launcher
-// does not look for updates (a private repository), and its Updates page only shows the version. Once the repository
-// is public: "https://api.github.com/repos/<user>/GHBandHRecomp/releases?per_page=20" and
-// "https://github.com/<user>/GHBandHRecomp/releases".
-inline constexpr const char* kReleasesApi = "";
-inline constexpr const char* kReleasesPage = "";
+// does not look for updates, and its Updates page only shows the version. Set from the first release on, while the
+// repository is still private (the check fails until it is public, and the releases made then are found).
+inline constexpr const char* kReleasesApi = "https://api.github.com/repos/ElGuslml/GHBandHRecomp/releases?per_page=20";
+inline constexpr const char* kReleasesPage = "https://github.com/ElGuslml/GHBandHRecomp/releases";
 
 // --- The game's own options (a cvar each; empty: the game has no such option, and the launcher no row) ---
 
@@ -121,8 +127,8 @@ inline constexpr const char* kUltrawideCvar = GAME_ULTRAWIDE_CVAR;
 // The languages the game has (game_types.h's Language): the Game page's language row, in this order. Empty: the game
 // asks in its own menu, and the launcher has no row.
 // The disc's text packs (DATA/COMPRESSED/PAK/qs_*.pak.xen): English and French, German, Italian, Spanish (Spain's);
-// the game picks one from XGetLanguage at start (GH Van Halen's and GH Metallica's packs, the same here; not checked
-// in this game yet).
+// the game picks one from XGetLanguage at start (GH Van Halen's and GH Metallica's packs, the same here; checked by
+// Gustavo, 2026-11-09).
 inline constexpr std::array<Language, 5> kLanguages{{
     {3, "Deutsch", nullptr, nullptr},
     {1, "English", nullptr, nullptr},

@@ -1,6 +1,9 @@
 # The fixes ported from Guitar Hero 5
 
-**Status: in testing (2026-11-06; GH5's later fixes ported 2026-11-08).** Band Hero is Guitar Hero 5's code base one step on: its executable's original
+**Status: working (2026-11-09; GH5's later fixes ported 2026-11-08).** Gustavo played songs with an Xbox 360 guitar on
+NativeXRenderer, and checked the languages and Low latency audio. Drums and singing are not tried yet.
+
+Band Hero is Guitar Hero 5's code base one step on: its executable's original
 name is `gh5_1_burn_Final.exe` (GH5's `gh5_burn_Final.exe`), built with the same XDK (2.0.8276), and 99.3 % of its
 functions have the same instructions as GH5's but for branch targets and data addresses (Warriors of Rock 30.9 %, GH
 Van Halen 25.4 %). Its first boot had GH5's problems (5.35 cores busy at the first screen, among others), so GH5Recomp's
@@ -50,6 +53,26 @@ The scripts these depend on are the same bytes as GH5's: star power's drain, `bu
 (`0x02B91F04`); the quit prompt's and Party Play's elements work as in GH5. Of Band Hero's 9005 scripts, 96.4 % exist in GH5
 and 90 % of those are byte for byte the same.
 
+## The audio drifts out of sync during a song
+
+**Cause:** the engine's timer replaces the timebase's 50,000,000 Hz by 49,875,000 (the first consoles' real timebase);
+ReXGlue's timebase runs at 50 MHz, so the game's clock ran 0.25 % fast and the audio fell behind the notes. **Fix:**
+`src/timer.cpp`, a hook in the timer's setup (`sub_823B0CC0`, 0x823B0D5C) keeps the reported frequency. **Off:**
+`ghbandhero_timer_fix = false`.
+
+## Turning off the screen effects
+
+**Options, all on by default.** The final composite draws the shader `_Uber_ScreenFX` in two passes, chosen from a word
+of flags with one bit per effect; `src/screen_fx.cpp` takes the bits of the effects turned off out of each read (below,
+"Where this game differs"). Band Hero Launcher's **Settings → Graphics** has a switch each: `ghbandhero_fx_bloom`,
+`_depth_of_field`, `_grain`, `_color`, `_vignette`. With the color correction off the grain goes too.
+
+## Low latency audio and language
+
+As GH5's: Band Hero Launcher's Low latency audio (`audio_wasapi_exclusive`, off by default) and the language row (the game
+picks its text pack, English, French, German, Italian or Spanish, from `XGetLanguage`). Both checked by Gustavo
+(2026-11-09).
+
 ## Where this game differs
 
 **The screen effects' composite** (`sub_8263E130`, GH5's `sub_82643598`) has one more fragment in Pass0, `_projection1`,
@@ -85,8 +108,8 @@ for what this game shares with it:
 - **NativeXRenderer the default, its antialiasing once a frame, Shadow quality**:
   [native-x-renderer-ghbandhero.md](native-x-renderer-ghbandhero.md).
 
-None of these has been played here yet: checked by the tools in Party Play (the first screen) at 160 and 60 FPS, on both
-renderers, 0 errors.
+Checked by the tools in Party Play (the first screen) at 160 and 60 FPS, on both renderers, 0 errors; then played by
+Gustavo with an Xbox 360 guitar at 160 FPS on NativeXRenderer (2026-11-09, 0 errors).
 
 ## Warriors of Rock's additions
 
@@ -97,8 +120,7 @@ renderers, 0 errors.
 ## Known
 
 - In ultrawide a one pixel column of the image stays at the left end of the 16:9 area in the menus. GH5 has the same one.
-- Not tried by a player yet: a real guitar, drums and singing, the sound by ear and its sync, star power, the whammy above
-  60 FPS, the career, a second controller, the other languages, DLC.
+- Not tried by a player yet: drums and singing, DLC.
 
 ## The job queue's lock and wake-ups (2026-11-08, from GH Metallica)
 

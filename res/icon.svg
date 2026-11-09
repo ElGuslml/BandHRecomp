@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 256 256" width="256" height="256">
+  <!-- The GHBandHRecomp icon: a guitar pick with two beamed notes on a riveted steel medallion. From Band Hero Launcher's
+       art (launcher/art/background.svg): its pink, its notes, its night-purple stage and its rainbow rays, drawn for
+       this project (no art from the game); GHMetalRecomp's, GHVanHRecomp's, GH5Recomp's and GHWoRRecomp's icon with its
+       own pick. res/make_icon.mjs builds res/icon.ico from this file (40 px and up) and icon_small.svg (16-32 px). -->
+  <defs>
+    <linearGradient id="steel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f4f4f7"/>
+      <stop offset="0.35" stop-color="#a7a7b0"/>
+      <stop offset="0.55" stop-color="#e3e3e9"/>
+      <stop offset="1" stop-color="#5b5a63"/>
+    </linearGradient>
+    <radialGradient id="stage" cx="0.5" cy="0.4" r="0.62">
+      <stop offset="0" stop-color="#2a1838"/>
+      <stop offset="0.6" stop-color="#140d1c"/>
+      <stop offset="1" stop-color="#08060c"/>
+    </radialGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ff3d9a" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#ff3d9a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff8cc6"/>
+      <stop offset="0.5" stop-color="#ff3d9a"/>
+      <stop offset="1" stop-color="#b0125e"/>
+    </linearGradient>
+    <radialGradient id="rivet" cx="0.35" cy="0.3" r="0.75">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#5b5a63"/>
+    </radialGradient>
+    <clipPath id="inside">
+      <circle cx="128" cy="128" r="88"/>
+    </clipPath>
+    <circle id="stud" r="4.6" fill="url(#rivet)" stroke="#19181c" stroke-width="1.5"/>
+    <path id="ray" d="M 128,128 L 113,20 L 143,20 Z"/>
+    <path id="sparkle" d="M 0,-9 L 2,-2 L 9,0 L 2,2 L 0,9 L -2,2 L -9,0 L -2,-2 Z" fill="#f4eef2"/>
+    <path id="pick" d="M 128,204 C 100,178 66,140 66,104 C 66,74 98,58 128,58 C 158,58 190,74 190,104
+                       C 190,140 156,178 128,204 Z"/>
+    <!-- Two beamed eighth notes, as the art's: heads, stems and the beam, one shape. -->
+    <g id="notes">
+      <ellipse cx="103" cy="149" rx="15" ry="11" transform="rotate(-24 103 149)"/>
+      <ellipse cx="151" cy="138" rx="15" ry="11" transform="rotate(-24 151 138)"/>
+      <rect x="111" y="86" width="8" height="62"/>
+      <rect x="159" y="75" width="8" height="62"/>
+      <path d="M 111,82 L 167,70 L 167,90 L 111,102 Z"/>
+    </g>
+  </defs>
+
+  <!-- Medallion: a steel rim with eight rivets, the stage dark in the middle. -->
+  <circle cx="128" cy="128" r="106" fill="url(#steel)" stroke="#19181c" stroke-width="4"/>
+  <circle cx="128" cy="128" r="101" fill="none" stroke="#ffffff" stroke-opacity="0.4" stroke-width="1.5"/>
+  <use xlink:href="#stud" transform="translate(218.5 165.5)"/>
+  <use xlink:href="#stud" transform="translate(165.5 218.5)"/>
+  <use xlink:href="#stud" transform="translate(90.5 218.5)"/>
+  <use xlink:href="#stud" transform="translate(37.5 165.5)"/>
+  <use xlink:href="#stud" transform="translate(37.5 90.5)"/>
+  <use xlink:href="#stud" transform="translate(90.5 37.5)"/>
+  <use xlink:href="#stud" transform="translate(165.5 37.5)"/>
+  <use xlink:href="#stud" transform="translate(218.5 90.5)"/>
+  <circle cx="128" cy="128" r="90" fill="url(#stage)" stroke="#19181c" stroke-width="4"/>
+
+  <!-- Stage light: the art's rainbow rays, clockwise from the top in its order, and the pink glow behind the pick. -->
+  <g clip-path="url(#inside)" fill-opacity="0.24">
+    <use xlink:href="#ray" fill="#ff4a3d"/>
+    <use xlink:href="#ray" fill="#ff8a1f" transform="rotate(36 128 128)"/>
+    <use xlink:href="#ray" fill="#ffd23a" transform="rotate(72 128 128)"/>
+    <use xlink:href="#ray" fill="#8be04a" transform="rotate(108 128 128)"/>
+    <use xlink:href="#ray" fill="#2ec4a6" transform="rotate(144 128 128)"/>
+    <use xlink:href="#ray" fill="#2eb8f0" transform="rotate(180 128 128)"/>
+    <use xlink:href="#ray" fill="#3d7bff" transform="rotate(216 128 128)"/>
+    <use xlink:href="#ray" fill="#9b5bff" transform="rotate(252 128 128)"/>
+    <use xlink:href="#ray" fill="#e04acf" transform="rotate(288 128 128)"/>
+    <use xlink:href="#ray" fill="#ff3d9a" transform="rotate(324 128 128)"/>
+  </g>
+  <g clip-path="url(#inside)">
+    <circle cx="128" cy="130" r="88" fill="url(#glow)"/>
+  </g>
+
+  <!-- The pick: a light border around it, the launcher's pink, its shade and highlight. -->
+  <use xlink:href="#pick" fill="none" stroke="#f4eef2" stroke-width="16" stroke-linejoin="round"/>
+  <use xlink:href="#pick" fill="url(#pink)"/>
+  <g transform="translate(128 128) scale(1.08)">
+    <path d="M0 70 C24 46 44 20 52 -6 C40 22 22 44 0 60 Z" fill="#7d0b44" opacity="0.5"/>
+    <path d="M0 58 C-26 32 -48 4 -48 -20 C-48 -42 -26 -52 0 -52" fill="none" stroke="#ffc2e0" stroke-width="3"
+          stroke-linecap="round" opacity="0.8"/>
+  </g>
+  <use xlink:href="#pick" fill="none" stroke="#0b0a0c" stroke-width="6" stroke-linejoin="round"/>
+
+  <!-- The notes: a dark outline (the shape stroked under it), then the shape in white, and a gleam on the beam. -->
+  <use xlink:href="#notes" fill="#0b0a0c" stroke="#0b0a0c" stroke-width="8" stroke-linejoin="round"/>
+  <use xlink:href="#notes" fill="#f4eef2"/>
+  <path d="M 116,88 L 160,78.5" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+
+  <!-- Sparkles -->
+  <use xlink:href="#sparkle" transform="translate(70 70)"/>
+  <use xlink:href="#sparkle" transform="translate(190 178) scale(0.75)"/>
+</svg>

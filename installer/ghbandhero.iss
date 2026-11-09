@@ -21,7 +21,7 @@
 #define LauncherExe "Band Hero Launcher.exe"
 ; The project's public repository, once there is one ("https://github.com/<user>/GHBandHRecomp"): the links of the
 ; uninstall entry.
-#define RepoUrl ""
+#define RepoUrl "https://github.com/ElGuslml/GHBandHRecomp"
 
 [Setup]
 ; Never change the AppId: Windows knows the installation by it, and a newer installer finds the older one with it.
