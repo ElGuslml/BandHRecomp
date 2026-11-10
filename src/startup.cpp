@@ -84,10 +84,11 @@ clear_memory_page_state = false
 # 3 = 4x (the SDK default), 2 = 2x, 0 = off, -1 = only what the game asks. Band Hero Launcher's
 # "Anisotropic filtering" row sets it.
 anisotropic_override = 5
-# Call the game's audio callback at least 3 ms apart (the console calls it every 5.3 ms), not in the
-# bursts of two the host device frees frames in. FMOD's mixer polls how far its two-block ring has
-# been read and missed most blocks: from the title screen on, the music played as noise. 0 = the SDK
-# default (no spacing).
+# Start the game's audio callback at least 3 ms after its last call started (the console calls it every
+# 5.3 ms), not in the bursts of two the host device frees frames in. FMOD's mixer polls how far its
+# two-block ring has been read and missed most blocks: from the title screen on, the music played as
+# noise. Counted from the start, the callback's own work is part of the 3 ms, so a slower CPU keeps up
+# (SDK change 82; docs/audio-crackling.md). 0 = the SDK default (no spacing).
 audio_callback_min_interval_us = 3000
 # Audio frames queued for the sound device (5.3 ms each): 4 is the least the SDK allows, 21 ms less
 # delay between a strum and its sound than the SDK's 8. With the calls spaced the queue stays full

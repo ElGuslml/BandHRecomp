@@ -14,5 +14,6 @@ projects.
 | [Clothes shooting out for a frame](clothes-stretching.md) | GH5's fix: the skinning waits for the animation that writes its bones |
 | [Downloadable content](dlc.md) | The player's DLC folder, read in place: packages read, their songs not tried yet |
 | [Stutters the first time something is shown](compiling-shaders.md) | Fixed: a pipeline list ships with the game; the launcher compiles it for your graphics card at the first Play ("Compiling shaders"; NativeXRenderer) |
+| [Crackling in songs on slower PCs](audio-crackling.md) | Fixed in the SDK (change 82): the audio callback's spacing counted from its start, so a slower CPU keeps up |
 
 Building the project, its configuration and how the SDK is changed: [`development.md`](development.md).
