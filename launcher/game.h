@@ -152,9 +152,22 @@ inline constexpr std::array<Toggle, 5> kToggles{{
 
 // --- Downloadable content ---
 
-// The DLC page (page_dlc.cpp, dlc.h): Xbox 360 content packages, each installed by the game's --install_content tool
-// mode (SDK change 44) into its user data's content folder.
+// The DLC page (page_dlc.cpp, dlc.h; docs/dlc.md): the player's DLC folder, its packages read by the game where they
+// are (SDK change 80, content_packages.txt); packages extracted by launchers before 3.16 still read.
 inline constexpr bool kHasDlcPage = true;
+inline constexpr DlcMode kDlcMode = DlcMode::kFolder;
+
+// Which packages the game reads (docs/dlc.md; GH5Recomp's local_docs/20): Guitar Hero 5's rule. Its script 5A4B6A0C is
+// GH5's (and one more call at its end, boot_download_scan) and resolves every content folder by a manifest: a package
+// is known by the QBKey of its display name (its first 42 characters, XCONTENT's length, as the community's tools name
+// their manifests) and must carry "bmanifest_<key>.pak.xen" (GH5's own packs do), be named in another pack's manifest
+// or in the disc's own list (qb.pab.xen, key 0x65735DEB: one entry, Death Magnetic, as GH5's). With one it cannot
+// resolve, it reports a damaged package and turns off every DLC.
+inline constexpr uint32_t kDlcDiscNames[] = {0x903733C1, 0x477946E0};
+inline constexpr DlcRule kDlcRule{.manifest_prefix = "bmanifest_",
+                                  .name_length = 42,
+                                  .known_names = kDlcDiscNames,
+                                  .foreign = DlcForeign::kDisablesAll};
 
 // NativeXRenderer's pipeline list (its D129, pipelines.h): Play first runs the game's --native_x_renderer_prepare_pipelines
 // ("Compiling shaders") when the executable, the list (<TITLEID>.pipelines.list beside it) or the graphics driver

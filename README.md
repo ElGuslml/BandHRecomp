@@ -93,8 +93,9 @@ From then on, the launcher keeps itself up to date: when a new version comes out
 - 👤 **Profiles:** your saves, achievements and playtime in a profile shared by all the ElGus Recomps launchers.
 - 👥 **Play together:** in Party Play, the first controller to press a button plays with your profile; the other
   controllers join as its guests, as on the Xbox 360.
-- 🎶 **Downloadable content:** install your own Band Hero packages from the launcher's DLC tab
-  ([what to expect](docs/dlc.md)).
+- 🎶 **Downloadable content:** point the launcher's DLC tab at the folder where you keep your Xbox 360 packages: the
+  game reads them from there (nothing is copied, and the other ElGus Recomps launchers can use the same folder), and
+  packages the game cannot read come turned off ([what to expect](docs/dlc.md)).
 - 🏆 **Achievements:** a notification when you unlock one, and all 49 in the launcher or with F7 in the game.
 - 🌍 **Languages:** English, French, German, Italian and Spanish, in the game and in the launcher.
 - 🔄 **Automatic updates** from this page.
@@ -127,7 +128,7 @@ Everything is set up from **Band Hero Launcher**, with the mouse, the keyboard o
 | Tab | What you find there |
 |---|---|
 | ▶️ **Play** | Start the game, and see your settings, achievements and updates at a glance. |
-| 🎶 **DLC** | Install your own Band Hero downloadable content from a folder, and see the installed packages. |
+| 🎶 **DLC** | Your DLC folder: the game reads your packages from there, nothing copied. They are grouped by the game they were made for, each with its switch. |
 | 🏆 **Achievements** | All 49 achievements, the ones you have unlocked and when. |
 | 🎮 **Controls** | Your guitars, controllers and keyboard: what each button or key does, and which controller sings. The keyboard as a guitar (experimental). Frets that strum as you press them, on a controller or the keyboard. A whammy bar's and a tilt's assignment. Your microphone (experimental): device, gain and level. |
 | ⚙️ **Settings** | **Game:** the game's and the launcher's language, Low latency audio. **Video:** monitor, fullscreen or window, resolution, image format (fill a wide screen or keep 16:9), upscaling (AMD FSR 1, NVIDIA NIS) and sharpness, shadow quality, V-Sync (on by default: no tearing, without V-Sync's usual delay; leave it on with a G-Sync or FreeSync monitor too). **Graphics:** renderer, frame rate, antialiasing, texture sharpness, the game's screen effects. |
@@ -145,7 +146,7 @@ Everything is set up from **Band Hero Launcher**, with the mouse, the keyboard o
 </p>
 <p align="center"><sub>Settings (Video: your screen, window or fullscreen, the image format, upscaling, shadow quality) and the achievements.</sub></p>
 <p align="center">
-  <img src="docs/images/launcher-dlc.png" width="70%" alt="DLC: install your own Band Hero packages">
+  <img src="docs/images/launcher-dlc.png" width="70%" alt="DLC: your DLC folder and its packages">
 </p>
 
 Your choices are saved as soon as you make them. When you quit the game, the launcher comes back.
@@ -180,7 +181,8 @@ graphics instead), and tell us whether it happens there too.
 - 🔊 Some USB audio interfaces add delay in Windows' shared audio mode (a Focusrite Scarlett about 20 ms more than
   a motherboard's audio): calibrate the audio in the game's options.
 - ⚡ Above 60 FPS is experimental: something may still run too fast.
-- 🎶 Downloadable content has not been tried in this game yet ([details](docs/dlc.md)).
+- 🎶 Downloadable content: the packages are read (Guitar Hero 5's among them, as on the console), but their songs have
+  not been played in this game yet ([details](docs/dlc.md)).
 - ✨ With the Xenos renderer, or if you skip "Compiling shaders", the first time an effect appears it may show up a
   moment late.
 

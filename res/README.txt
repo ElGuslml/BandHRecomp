@@ -83,8 +83,12 @@ when you press PLAY.
     Alt can be Star Power. F1 to F12 can be assigned too: a key on a control only presses that control.
   - Microphone (experimental): the microphone you sing with, its channel and gain, and its level (see
     SINGING).
-- DLC: install your own Band Hero downloadable content. "Choose folder..." looks for packages in a folder
-  and its subfolders; your files stay where they are. The songs of a package show in Quickplay's song list.
+- DLC: choose the folder where you keep your Xbox 360 packages (LIVE, PIRS or CON files, in it or its
+  subfolders). The game reads them from there: nothing is copied, and the other ElGus Recomps launchers can
+  use the same folder. The packages are listed by the game they were made for, each with a switch; those
+  the game cannot read come turned off (with one on, the game would say a package is damaged and turn off
+  all your DLC). DLC installed by an earlier version keeps working; if your folder has the same packages,
+  "Remove copies" deletes the installed copies to free space (it asks first, and never touches your folder).
 - Settings:
   - Video: the monitor, fullscreen, borderless or window, the resolution, the image format (fill a screen
     wider than 16:9, where the stage is seen wider while the note highway, the HUD and the menus stay 16:9
@@ -175,7 +179,8 @@ KNOWN ISSUES
   than a motherboard's audio): calibrate the audio in the game's options.
 - Above 60 FPS is experimental: something may still run too fast. Tell us what and where.
 - Playing with the keyboard is experimental.
-- Downloadable content has not been tried in this game yet.
+- Downloadable content: the packages are read (Guitar Hero 5's among them, as on the console), but their songs
+  have not been played in this game yet.
 - The first time an effect appears, it may show up a few frames late.
 
 
