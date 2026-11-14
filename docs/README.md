@@ -15,5 +15,7 @@ projects.
 | [Downloadable content](dlc.md) | The player's DLC folder, read in place: packages read, their songs not tried yet |
 | [Stutters the first time something is shown](compiling-shaders.md) | Fixed: a pipeline list ships with the game; the launcher compiles it for your graphics card at the first Play ("Compiling shaders"; NativeXRenderer) |
 | [Crackling in songs on slower PCs](audio-crackling.md) | Fixed in the SDK (change 82): the audio callback's spacing counted from its start, so a slower CPU keeps up |
+| [The fixes from GH Metallica of 2026-11-11 to 13](fixes-from-gh-metallica.md) | Built, not tried in the game yet: the game's debug menu, the intro video ended once the game has loaded, drums on five or four lanes, Settings > Audio and the graphics card; online play not ported, and no tap notes' trail to fix (Band Hero draws none, as GH5) |
+| [The mouse cursor](mouse-cursor.md) | Hidden over the game after 2 s without moving it (SDK change 103) |
 
 Building the project, its configuration and how the SDK is changed: [`development.md`](development.md).

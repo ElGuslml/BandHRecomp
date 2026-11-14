@@ -64,8 +64,10 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${GHBANDHERO_SOU
 
 # Sources
 set(GHBANDHERO_SOURCES
+    src/debug_menu.cpp
     src/fmod_mix.cpp
     src/framerate.cpp
+    src/intro.cpp
     src/keyboard.cpp
     src/main.cpp
     src/native_x_renderer_ghbandhero.cpp

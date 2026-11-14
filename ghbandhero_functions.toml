@@ -306,3 +306,30 @@ registers = ["f1"]
 address = 0x825C8758   # fmr f30,f0 (sub_825C8558, after the shadow map's texel size is loaded: f31 = x, f0 = y)
 name = "GHBandHeroShadowFilterHook"
 registers = ["f0", "f31"]
+
+# GH Metallica's of 2026-11-11, as GH5's (src/debug_menu.cpp, src/intro.cpp): script globals read as 1 in given scripts
+# only. The game's debug menu offered in the main and pause menus (ghbandhero_debug_menu: enable_button_cheats in the
+# scripts that build them), and the boot's intro video ended once the game has loaded (ghbandhero_skip_intro:
+# end_movie_early in destroy_loading_screen_spawned). The script interpreter's statement (sub_823B35F0, r31 = the script,
+# its name at +244) evaluates expressions with sub_82540A80 at two places (none of these addresses is a branch target);
+# sub_823AAE40 resolves a "$name" component (r3) to the global's value. GH5's sub_823B3220, sub_8254BB50 and
+# sub_823AAB98 (tools/port/gh5_bh_map.pkl), the same instructions but for data addresses.
+[[midasm_hook]]
+address = 0x823B37BC   # lwz r3,16(r31), before bl 0x82540A80 at 0x823B37C0
+name = "GHBandHeroScriptEvalEnterHook"
+registers = ["r31"]
+[[midasm_hook]]
+address = 0x823B37C4   # stw r3,16(r31), after it
+name = "GHBandHeroScriptEvalLeaveHook"
+[[midasm_hook]]
+address = 0x823B3B24   # bl 0x82540A80 (the other evaluation, when bne 0x823B3B30 is not taken)
+name = "GHBandHeroScriptEvalEnterHook"
+registers = ["r31"]
+[[midasm_hook]]
+address = 0x823B3B28   # stw r3,16(r31), after it
+name = "GHBandHeroScriptEvalLeaveHook"
+[[midasm_hook]]
+address = 0x823AAE40   # lbz r11,2(r3) (the entry of sub_823AAE40): r3 = the component
+name = "GHBandHeroGlobalResolveHook"
+registers = ["r3"]
+return_on_true = true

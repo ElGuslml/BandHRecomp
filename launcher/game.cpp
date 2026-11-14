@@ -1,6 +1,7 @@
 // This game's own texts (game.h): the first run's screens and the Instruments and gamepad page in the game's spirit
-// (GH Van Halen's, from its mockup), the Game page's switches, where the game shows its DLC, and the guitar's functions
-// on the Keyboard and Gamepad pages, in the launcher's languages (English, German, French, Spanish, Italian).
+// (GH Van Halen's, from its mockup), the Game page's switches, where the game shows its DLC, and the guitar's and the
+// drums' functions on the Keyboard and Gamepad pages, in the launcher's languages (English, German, French, Spanish,
+// Italian).
 
 #include "game.h"
 
@@ -19,6 +20,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Color correction", "Each venue's look; off turns the grain off too.",
           "Film grain", "The grain over the image. Needs the color correction.",
           "Vignette", "Darker corners, where a venue turns it on.",
+          "Skip the intro video", "The intro ends as soon as the game has loaded.",
+          "Game debug menu", "Neversoft's debug menu in the main menu and the pause menu.",
       },
       .toggle_help = {
           "The halo of light around the stage's lights, the pyrotechnics and the brightest surfaces. Off, the image is sharper and flatter.",
@@ -26,6 +29,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "The brightness, contrast and saturation each venue sets, the fades to black and the grey image while the rock meter is red. Off, the colors are the scene's own and the film grain goes off with it: without this pass the grain is far stronger.",
           "A fine moving grain over the image, as on film. It only shows with the color correction on.",
           "Darkens the corners of the image in the venues and moments that use it.",
+          "The game plays its intro video while it loads at each start. With this on, the video ends as soon as the game has loaded, as if you pressed Start then, and Party Play begins at once.",
+          "Adds a \"(debug menu)\" item to the main menu and a Debug Menu item to the pause menu: the menu the game's developers used (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Its texts are in English, some items do nothing without the developers' tools, and Unlock All changes your save as playing does.",
       },
       .done_title = "The stage is yours!",
       .done_text = "The game was installed. Go play now, or first review the video, graphics and instrument settings; "
@@ -48,6 +53,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Farbkorrektur", "Der Look jedes Ortes; aus schaltet auch die Körnung aus.",
           "Filmkörnung", "Die Körnung über dem Bild. Braucht die Farbkorrektur.",
           "Vignette", "Dunklere Ecken, wo ein Ort sie einschaltet.",
+          "Intro-Video überspringen", "Das Intro endet, sobald das Spiel geladen ist.",
+          "Debug-Menü des Spiels", "Das Debug-Menü von Neversoft im Hauptmenü und im Pausenmenü.",
       },
       .toggle_help = {
           "Der Lichtschein um die Bühnenlichter, die Pyrotechnik und die hellsten Flächen. Aus wirkt das Bild schärfer und flacher.",
@@ -55,6 +62,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Helligkeit, Kontrast und Sättigung jedes Auftrittsortes, die Abblenden ins Schwarze und das graue Bild, solange die Rock-Anzeige rot ist. Aus zeigt die eigenen Farben der Szene, und die Filmkörnung geht mit aus: ohne diesen Durchgang ist sie viel stärker.",
           "Eine feine, bewegte Körnung über dem Bild, wie bei Film. Nur mit eingeschalteter Farbkorrektur sichtbar.",
           "Dunkelt die Bildecken an den Orten und in den Momenten ab, die sie verwenden.",
+          "Das Spiel zeigt bei jedem Start sein Intro-Video, während es lädt. Eingeschaltet endet das Video, sobald das Spiel geladen ist, als hättest du in dem Moment Start gedrückt, und das Spiel geht sofort los.",
+          "Fügt dem Hauptmenü den Eintrag \"(debug menu)\" und dem Pausenmenü den Eintrag Debug Menu hinzu: das Menü der Entwickler des Spiels (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Seine Texte sind englisch, manche Einträge tun ohne die Werkzeuge der Entwickler nichts, und Unlock All ändert deinen Spielstand wie das Spielen.",
       },
       .done_title = "Die Bühne gehört dir!",
       .done_text = "Das Spiel wurde installiert. Leg gleich los oder sieh dir zuerst die Video-, Grafik- und "
@@ -77,6 +86,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Correction des couleurs", "L'ambiance de chaque salle ; désactivée, le grain l'est aussi.",
           "Grain", "Le grain sur l'image. Nécessite la correction des couleurs.",
           "Vignettage", "Des coins plus sombres, là où une salle l'active.",
+          "Passer la vidéo d'intro", "L'intro s'arrête dès que le jeu est chargé.",
+          "Menu de débogage du jeu", "Le menu de débogage de Neversoft dans le menu principal et le menu pause.",
       },
       .toggle_help = {
           "Le halo autour des lumières de la scène, de la pyrotechnie et des surfaces les plus claires. Désactivé, l'image est plus nette et plus plate.",
@@ -84,6 +95,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "La luminosité, le contraste et la saturation de chaque salle, les fondus au noir et l'image grise tant que la jauge rock est dans le rouge. Désactivée, les couleurs sont celles de la scène et le grain s'éteint avec elle : sans cette passe, il est bien plus fort.",
           "Un grain fin et animé sur l'image, comme sur pellicule. Il n'apparaît qu'avec la correction des couleurs activée.",
           "Assombrit les coins de l'image dans les salles et les moments qui l'utilisent.",
+          "À chaque démarrage, le jeu passe sa vidéo d'intro pendant qu'il charge. Activée, la vidéo s'arrête dès que le jeu est chargé, comme si vous appuyiez alors sur Start, et le jeu commence aussitôt.",
+          "Ajoute l'entrée « (debug menu) » au menu principal et l'entrée Debug Menu au menu pause : le menu des développeurs du jeu (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Ses textes sont en anglais, certaines entrées ne font rien sans les outils des développeurs, et Unlock All modifie votre sauvegarde comme le jeu.",
       },
       .done_title = "La scène est à vous !",
       .done_text = "Le jeu a été installé. Allez jouer tout de suite, ou vérifiez d'abord les réglages vidéo, "
@@ -107,6 +120,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Corrección de color", "El aspecto de cada escenario; al desactivarla se apaga el grano.",
           "Grano de película", "El grano sobre la imagen. Necesita la corrección de color.",
           "Viñeta", "Esquinas más oscuras, donde un escenario la activa.",
+          "Saltar el video de introducción", "La intro termina en cuanto el juego cargó.",
+          "Menú de depuración del juego", "El menú de depuración de Neversoft en el menú principal y en el de pausa.",
       },
       .toggle_help = {
           "El halo de luz alrededor de las luces del escenario, la pirotecnia y las superficies más brillantes. Desactivado, la imagen se ve más nítida y plana.",
@@ -114,6 +129,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "El brillo, el contraste y la saturación de cada escenario, los fundidos a negro y la imagen gris mientras el medidor de rock está en rojo. Desactivada, se ven los colores propios de la escena y el grano de película se apaga con ella: sin esta pasada el grano es mucho más fuerte.",
           "Un grano fino y en movimiento sobre la imagen, como en una película. Solo se ve con la corrección de color activada.",
           "Oscurece las esquinas de la imagen en los escenarios y momentos que la usan.",
+          "En cada inicio el juego muestra su video de introducción mientras carga. Activado, el video termina en cuanto el juego cargó, como si pulsaras Start en ese momento, y el juego empieza enseguida.",
+          "Añade la opción «(debug menu)» al menú principal y Debug Menu al de pausa: el menú que usaban los desarrolladores del juego (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). Sus textos están en inglés, algunas opciones no hacen nada sin las herramientas de los desarrolladores, y Unlock All cambia tu partida guardada como jugar.",
       },
       .done_title = "¡El escenario es tuyo!",
       .done_text = "El juego se instaló correctamente. Puedes salir a tocar ya o revisar primero los ajustes de video, "
@@ -136,6 +153,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "Correzione del colore", "L'aspetto di ogni locale; disattivata spegne anche la grana.",
           "Grana", "La grana sull'immagine. Richiede la correzione del colore.",
           "Vignettatura", "Angoli più scuri, dove un locale la attiva.",
+          "Salta il video introduttivo", "L'intro finisce appena il gioco è caricato.",
+          "Menu di debug del gioco", "Il menu di debug di Neversoft nel menu principale e nel menu di pausa.",
       },
       .toggle_help = {
           "L'alone di luce attorno alle luci del palco, alla pirotecnica e alle superfici più luminose. Disattivato, l'immagine è più nitida e piatta.",
@@ -143,6 +162,8 @@ const GameTexts& GameTextsFor(uint32_t language) {
           "La luminosità, il contrasto e la saturazione di ogni locale, le dissolvenze al nero e l'immagine grigia mentre l'indicatore rock è nel rosso. Disattivata, si vedono i colori propri della scena e la grana si spegne con essa: senza questo passaggio è molto più forte.",
           "Una grana fine e in movimento sull'immagine, come su pellicola. Si vede solo con la correzione del colore attiva.",
           "Scurisce gli angoli dell'immagine nei locali e nei momenti che la usano.",
+          "A ogni avvio il gioco mostra il suo video introduttivo mentre carica. Attivato, il video finisce appena il gioco è caricato, come se premessi Start in quel momento, e il gioco inizia subito.",
+          "Aggiunge la voce «(debug menu)» al menu principale e Debug Menu al menu di pausa: il menu degli sviluppatori del gioco (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU Time, ...). I suoi testi sono in inglese, alcune voci non fanno nulla senza gli strumenti degli sviluppatori, e Unlock All cambia il tuo salvataggio come giocare.",
       },
       .done_title = "Il palco è tuo!",
       .done_text = "Il gioco è stato installato. Vai a suonare subito o controlla prima le impostazioni video, grafiche e "
@@ -230,7 +251,83 @@ std::vector<GameControlGroup> Guitar(const ControlWords& w) {
   };
 }
 
+// One language's words for the drums' functions.
+struct DrumWords {
+  const char* pads;
+  const char* kick_group;
+  const char* menus;
+  const char* red;
+  const char* yellow_cymbal;
+  const char* yellow_pad;
+  const char* blue;
+  const char* orange;
+  const char* green;
+  const char* kick;
+  const char* kick_chip;
+  const char* dpad_up;
+  const char* dpad_down;
+};
+
+// The game's drums on the Xbox 360 controller, in the highway's order (GH Metallica's): a Guitar Hero kit's pads on B,
+// Y, X and A, its orange cymbal on RB and its kick pedal on LB; a Rock Band kit (four lanes) has no orange. Star Power on
+// Back; the menus on the D-pad and Start.
+std::vector<GameControlGroup> Drums(const DrumWords& w, bool four) {
+  std::vector<GameControl> pads = {
+      {int(Bind::kB), "", kRed, kOnFret, w.red},
+      {int(Bind::kY), "", kYellow, kOnFret, four ? w.yellow_pad : w.yellow_cymbal},
+      {int(Bind::kX), "", kBlue, kOnFret, w.blue},
+  };
+  if (!four) pads.push_back({int(Bind::kRightShoulder), "", kOrange, kOnFret, w.orange});
+  pads.push_back({int(Bind::kA), "", kGreen, kOnFret, w.green});
+  return {
+      {w.pads, pads},
+      {w.kick_group,
+       {
+           {int(Bind::kLeftShoulder), w.kick_chip, kGrey, kOnGrey, w.kick},
+           {int(Bind::kBack), "SP", kGrey, kOnStarPower, "Star Power"},
+       }},
+      {w.menus,
+       {
+           {int(Bind::kDpadUp), "\xE2\x86\x91", kGrey, kOnGrey, w.dpad_up, w.dpad_up},
+           {int(Bind::kDpadDown), "\xE2\x86\x93", kGrey, kOnGrey, w.dpad_down, w.dpad_down},
+           {int(Bind::kStart), "START", kGrey, kOnGrey, "Start"},
+       }},
+  };
+}
+
 }  // namespace
+
+const std::vector<GameControlGroup>& GameDrumControlsFor(uint32_t language, bool four_lanes) {
+  static const DrumWords kEnglish{"Drums \xC2\xB7 Pads", "Drums \xC2\xB7 Kick and Star Power", "Menus", "Red pad",
+                                  "Yellow cymbal", "Yellow pad", "Blue pad", "Orange cymbal", "Green pad",
+                                  "Kick pedal", "KICK", "D-pad up", "D-pad down"};
+  static const DrumWords kGerman{"Schlagzeug \xC2\xB7 Pads", "Schlagzeug \xC2\xB7 Bass und Star Power", "Menüs",
+                                 "Rotes Pad", "Gelbes Becken", "Gelbes Pad", "Blaues Pad", "Oranges Becken",
+                                 "Grünes Pad", "Bassdrum-Pedal", "BASS", "Steuerkreuz hoch", "Steuerkreuz runter"};
+  static const DrumWords kFrench{"Batterie \xC2\xB7 Pads", "Batterie \xC2\xB7 Grosse caisse et Star Power", "Menus",
+                                 "Pad rouge", "Cymbale jaune", "Pad jaune", "Pad bleu", "Cymbale orange", "Pad vert",
+                                 "Pédale de grosse caisse", "GC", "Croix haut", "Croix bas"};
+  static const DrumWords kSpanish{"Batería \xC2\xB7 Pads", "Batería \xC2\xB7 Bombo y Star Power", "Menús",
+                                  "Pad rojo", "Platillo amarillo", "Pad amarillo", "Pad azul", "Platillo naranja",
+                                  "Pad verde", "Pedal del bombo", "BOMBO", "Cruceta arriba", "Cruceta abajo"};
+  static const DrumWords kItalian{"Batteria \xC2\xB7 Pad", "Batteria \xC2\xB7 Cassa e Star Power", "Menu",
+                                  "Pad rosso", "Piatto giallo", "Pad giallo", "Pad blu", "Piatto arancione",
+                                  "Pad verde", "Pedale della cassa", "CASSA", "Croce su", "Croce giù"};
+  const DrumWords& words = language == 3   ? kGerman
+                           : language == 4 ? kFrench
+                           : language == 5 ? kSpanish
+                           : language == 6 ? kItalian
+                                           : kEnglish;
+  // Built once per language and kind of kit.
+  static std::vector<GameControlGroup> built[7][2];
+  static bool done[7][2] = {};
+  const uint32_t index = language < 7 ? language : 1;
+  if (!done[index][four_lanes]) {
+    built[index][four_lanes] = Drums(words, four_lanes);
+    done[index][four_lanes] = true;
+  }
+  return built[index][four_lanes];
+}
 
 const std::vector<GameControlGroup>& GameControlsFor(uint32_t language) {
   static const std::vector<GameControlGroup> kEnglish = Guitar({

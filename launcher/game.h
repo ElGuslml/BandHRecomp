@@ -141,13 +141,17 @@ inline constexpr std::array<Language, 5> kLanguages{{
 // titles, hints and help are game.cpp's (GameTexts::toggles and toggle_help, in this order).
 // The screen effects (src/screen_fx.cpp, docs/fixes-from-gh-van-halen.md), all on as on the console: the grain only
 // with the color correction (GH Van Halen's rule: without that pass its grain was far stronger). GH Van Halen's ink
-// blotches are not part of Band Hero's composite: no switch.
-inline constexpr std::array<Toggle, 5> kToggles{{
+// blotches are not part of Band Hero's composite: no switch. Then two in Settings > Game, off as on the console (GH
+// Metallica's, docs/fixes-from-gh-metallica.md): the boot's intro video ended once the game has loaded
+// (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp).
+inline constexpr std::array<Toggle, 7> kToggles{{
     {"ghbandhero_fx_bloom", true, ToggleGroup::kScreenEffects},
     {"ghbandhero_fx_depth_of_field", true, ToggleGroup::kScreenEffects},
     {"ghbandhero_fx_color", true, ToggleGroup::kScreenEffects},
     {"ghbandhero_fx_grain", true, ToggleGroup::kScreenEffects, "ghbandhero_fx_color"},
     {"ghbandhero_fx_vignette", true, ToggleGroup::kScreenEffects},
+    {"ghbandhero_skip_intro", false},
+    {"ghbandhero_debug_menu", false},
 }};
 
 // --- Downloadable content ---
@@ -201,6 +205,31 @@ inline constexpr std::array<KeyDefault, 19> kKeyboardDefaults{{
     {"keybind_lstick_right", ""},
     {"keybind_lstick_press", ""},
 }};
+// The keyboard playing drums (kHasDrums): its keys apart from the guitar's, in the highway's order. Five lanes, a
+// Guitar Hero kit (pads on B, Y, X and A, the orange cymbal on RB, the kick pedal on LB): D red, F yellow, J blue,
+// K orange, L green, Space the kick; four lanes, a Rock Band kit (no orange): K green. Backspace is Star Power (Space
+// is the kick); the right stick's arrow off (a Guitar Hero kit's sticks carry its pads' velocity). The others are the
+// guitar's (kKeyboardDefaults), as the menus' keys. GH Metallica's.
+inline constexpr std::array<KeyDefault, 8> kDrumKeyboardDefaults{{
+    {"keybind_b", "D"},
+    {"keybind_y", "F"},
+    {"keybind_x", "J"},
+    {"keybind_right_shoulder", "K"},
+    {"keybind_a", "L"},
+    {"keybind_left_shoulder", "Space"},
+    {"keybind_back", "Backspace"},
+    {"keybind_rstick_right", ""},
+}};
+inline constexpr std::array<KeyDefault, 8> kDrumKeyboardDefaultsFourLanes{{
+    {"keybind_b", "D"},
+    {"keybind_y", "F"},
+    {"keybind_x", "J"},
+    {"keybind_right_shoulder", ""},
+    {"keybind_a", "K"},
+    {"keybind_left_shoulder", "Space"},
+    {"keybind_back", "Backspace"},
+    {"keybind_rstick_right", ""},
+}};
 // The Keyboard page's switch that makes the keyboard's frets strum as they are pressed (the SDK's mnk_tap_target with
 // src/startup.cpp's mnk_tap_sources, the frets): the control it presses when on, the D-pad (strumming); "": no switch.
 // The same on each controller's page for the controllers playing guitar (gamepad_tap_target, gamepad_tap_sources).
@@ -221,11 +250,29 @@ inline constexpr bool kHasMicrophones = true;
 // The microphone's gain (usb_microphone_1_gain) until the player changes it, and the Microphone's Reset: src/startup.cpp's.
 inline constexpr int kMicrophoneGainDefault = -12;
 
+// --- Drums ---
+
+// A controller or the keyboard playing drums (launcher 3.19.1, the Instrument row): the SDK's gamepad_device_subtypes
+// gives it XInput's drum kit subtype, 8. Band Hero has GH Metallica's code for it, as GH5
+// (docs/fixes-from-gh-metallica.md): sub_82489908 makes a drum kit the game's type 11 (and remembers its capability
+// flags' bit 0 as 128 at +216 of the controller port), sub_82489C10 turns 11 into 10 (Guitar Hero's five lanes) at its
+// first state read (0x8248A074) unless that flag is set (or RB is held), and the script function UseFourLaneHighway
+// (its C function table entry at 0x82B0C458: sub_821D4288 -> sub_821D4190) plays type 11 on the game's own four-lane
+// highway, a Rock Band kit's (generate_pos_table's four lanes, setup_button_up_models' 4d materials,
+// touch_glow_props_rb_drum; those scripts are GH5's byte for byte). So the Drum kit row chooses five lanes, or four
+// with the SDK's change 87 ("8:1").
+inline constexpr bool kHasDrums = true;
+// Launcher 3.21.1: Band Hero does play a Rock Band kit on four lanes (above), so the Drum kit row stays (the default;
+// the changelog's guess that this engine has five lanes only holds neither for GH5 nor for Band Hero).
+inline constexpr bool kHasFourLaneDrums = true;
+
 // --- The controls in the game's words ---
 
 // The game's functions (game_types.h's GameControl) in groups, in the launcher's language (game.cpp); empty: the pages show the Xbox 360 controls
 // (texts.cpp). The Keyboard page lists after them, under "Other controls", the ones no function is on.
 const std::vector<GameControlGroup>& GameControlsFor(uint32_t language);
+// The same for a controller or the keyboard playing drums (kHasDrums), five or four lanes.
+const std::vector<GameControlGroup>& GameDrumControlsFor(uint32_t language, bool four_lanes);
 
 // --- Texts of the game's own (game.cpp) ---
 
