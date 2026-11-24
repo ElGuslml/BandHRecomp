@@ -64,18 +64,29 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${GHBANDHERO_SOU
 
 # Sources
 set(GHBANDHERO_SOURCES
+    src/controller_layout.cpp
     src/debug_menu.cpp
+    src/drums.cpp
+    src/fence_stamps.cpp
     src/fmod_mix.cpp
     src/framerate.cpp
+    src/highway_effects.cpp
+    src/highway_images.cpp
     src/intro.cpp
     src/keyboard.cpp
     src/main.cpp
+    src/mods.cpp
     src/native_x_renderer_ghbandhero.cpp
     src/options.cpp
     src/players.cpp
     src/quit_prompt.cpp
     src/screen_fx.cpp
+    src/script_globals.cpp
     src/skinning.cpp
+    src/song_clock.cpp
+    src/song_sync.cpp
+    src/split_render.cpp
+    src/star_power_reverb.cpp
     src/startup.cpp
     src/thread_waits.cpp
     src/timer.cpp

@@ -237,7 +237,7 @@ std::chrono::nanoseconds VblankPeriod() {
   const Clock::time_point now = Clock::now();
   if (read == Clock::time_point{} || now - read > 1s) {
     read = now;
-    const double hz = std::clamp(rex::cvar::Query<double>("video_mode_refresh_rate"), 24.0, 240.0);
+    const double hz = std::clamp(rex::cvar::Query<double>("video_mode_refresh_rate"), 24.0, 1000.0);
     period = rex::cvar::Query<bool>("vsync") ? std::chrono::nanoseconds(int64_t(1e9 / hz)) : std::chrono::nanoseconds(0);
   }
   return period;
@@ -271,8 +271,10 @@ void VblankWait(Vblank& state, int index, uint64_t counter, uint64_t target) {
   if (period.count() > 0 && state.anchor_value && target > state.anchor_value &&
       target - state.anchor_value <= 4 && now - state.anchor_time < 8 * period) {
     const Clock::time_point due = state.anchor_time + int64_t(target - state.anchor_value) * period;
-    const auto sleep = std::min<std::chrono::nanoseconds>(due - now - kVblankMargin, period);
-    if (sleep > 1ms) {
+    // Above 250 Hz the margin and the least sleep shrink with the period, or no sleep would ever be predicted.
+    const auto margin = std::min<std::chrono::nanoseconds>(kVblankMargin, period / 2);
+    const auto sleep = std::min<std::chrono::nanoseconds>(due - now - margin, period);
+    if (sleep > std::min<std::chrono::nanoseconds>(1ms, period / 4)) {
       rex::thread::PreciseSleep(std::chrono::duration_cast<std::chrono::microseconds>(sleep));
       state.checked = state.wait.last = Clock::now();
       return;

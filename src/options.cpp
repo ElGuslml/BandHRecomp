@@ -144,6 +144,20 @@ void LoadLauncherOptions(const std::filesystem::path& options_path,
     // follows the display's.
     double rate = frame_rate;
 #ifdef _WIN32
+    // V-Sync on (vblank_follows_display, which the launcher writes with it) shows no more frames than the display's
+    // refresh rate: a rate above it would run the game's vertical blank, and every count of frames, faster than the
+    // frames shown. The display's rate then (Gustavo, 2026-11-18, GH Warriors of Rock: "V-Sync manda"; the launcher's
+    // row says so).
+    if (frame_rate > 60 && rex::cvar::Query<bool>("vblank_follows_display")) {
+      double display = DisplayRefresh(rex::cvar::Query<int32_t>("monitor"));
+      if (display > 0.0 && frame_rate > display * 1.02) {
+        REXLOG_INFO("[options] V-Sync on: {} FPS is above the display's {:.3f} Hz, so the game runs at the display's "
+                    "(V-Sync off for {})",
+                    frame_rate, display, frame_rate);
+        frame_rate = int32_t(std::lround(display));
+        rate = display;
+      }
+    }
     if (frame_rate > 60 && !rex::cvar::Query<bool>("vblank_follows_display")) {
       double display = DisplayRefresh(rex::cvar::Query<int32_t>("monitor"));
       if (display > 0.0 && std::abs(display - frame_rate) <= frame_rate * 0.02) {

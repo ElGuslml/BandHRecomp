@@ -1,0 +1,11 @@
+# Measuring performance (GH Warriors of Rock's local_docs/68, 70): a song's frames by the vertical blanks each took
+# (src/framerate.cpp). The render thread's present (sub_8254FB40) waits for the frame's blank and stores the blank
+# count; the difference from the last frame's is the blanks the frame took. A line every 3,000 of a song's frames and
+# at its end; nothing at Unlimited, where a blank is a millisecond. GH WoR's 0x82584304 (sub_825840F0), the same code.
+[[midasm_hook]]
+address = 0x8254FDB8   # std r3,18592(r29) (sub_8254FB40: after bl 0x823B09D8; r3 = the blank count)
+name = "GHBandHeroFrameBlanksHook"
+registers = ["r3"]
+
+# The song's music stopped (SongStop, SongUnload, SongAudioPlayerDeInit): the count above logged and reset by
+# hooks/song_sync.toml's hooks at those three entries (src/song_sync.cpp), as GH Warriors of Rock's.

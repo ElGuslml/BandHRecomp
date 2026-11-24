@@ -108,6 +108,15 @@ audio_keep_time = true
 # shared output takes 77 ms (measured in GH Metallica). Without it these do nothing.
 audio_wasapi_exclusive_buffer_ms = 10
 audio_wasapi_exclusive_queue = 2
+# The game is told the speakers it plays on (the SDK's XAudioGetSpeakerConfig, its change 121): Dolby Digital 5.1 only
+# with audio_channels = "surround", or "auto" on a device of more than two channels; two speakers with "stereo", "mono"
+# or "auto" on a stereo device, as a console without Dolby. GH Warriors of Rock, the same engine, mixes the same six
+# channels either way (measured there: its centre and LFE empty, its rears a third of its fronts, whatever it is told),
+# so the sound does not change; Dolby Digital adds -30 ms to the notes' and the input's timing (the scripts'
+# default_lag_settings_dolbydigital, the same as GH WoR's), which ghbandhero_dolby_timing (src/mods.cpp, on) keeps whatever it
+# is told: no one calibrates again. Band Hero Launcher's Channels row (Automatic, 5.1, Stereo, Mono) writes audio_channels.
+# false = always Dolby Digital, as before.
+audio_speaker_config_from_output = true
 # V-Sync (Band Hero Launcher's row writes both): NativeXRenderer presents with FIFO, each frame shown once and never
 # torn, and the game's vertical blank follows the monitor's where the frame rate is its refresh rate or a whole
 # fraction of it, so the game never runs ahead of the display. Measured in GH Metallica at 160 FPS on a 160 Hz display:
@@ -115,6 +124,19 @@ audio_wasapi_exclusive_queue = 2
 # frames). "immediate" and false = V-Sync off (tearing, or a G-Sync / FreeSync display following the game).
 native_x_renderer_present_mode = "vsync"
 vblank_follows_display = true
+# V-Sync in a window that does not cover its display (NativeXRenderer D182; GH Warriors of Rock's local_docs/74, 2.1b):
+# MAILBOX there, the compositor or a display plane showing one whole picture a refresh. Measured in GH WoR at 160 FPS
+# in a 1280x720 window on a display plane: every frame shown, the shown frames' 1 % low 158.3-158.7 FPS (FIFO
+# 151.6-158.6) and 2.6-3.1 ms from present to display (FIFO 2.4-6.2, by its phase). A composed window (Wallpaper Engine
+# animating the desktop behind it) had FIFO's second phase: frames held a refresh longer, a 1 % low of 56 FPS.
+# Borderless and full screen keep FIFO (MAILBOX there: 10.4 ms to the display against 4.0). "vsync" = FIFO in a window
+# too, as before.
+native_x_renderer_window_present_mode = "mailbox"
+# NativeXRenderer records its DiligentCore calls on a thread of their own while its renderer's thread prepares the next
+# commands (D154, D155), on as in GH Warriors of Rock (its Quest song with the venue every frame at 3440x1440: at 240
+# FPS every stretch at 230 or more, 225.7 without it; the renderer's thread at about half of the frame). With V-Sync,
+# D172 drops one frame when the display's queue stays a frame too deep. false = one thread, as before.
+native_x_renderer_record_thread = true
 # Where the vertical blank runs on the SDK's timer (a G-Sync / FreeSync display, V-Sync off): its ticks within a few
 # microseconds of their time (700 us of spinning each; without, up to half a millisecond late), as the display shows
 # each frame when it comes.
@@ -129,6 +151,19 @@ critical_section_spin_us = 20
 # (orange), strumming on the D-pad, the whammy bar on the right stick, Star Power on Back. A real
 # guitar or drum kit keeps its own kind. 8 = drum kit, 0 = the SDK default (a gamepad).
 gamepad_subtype = 6
+# A controller plays a song as in Guitar Hero III, which had a layout for one (the menus stay as they are: A, B, the
+# D-pad): the frets on LT (green), LB (red), RB (yellow), RT (blue) and A (orange), no strum (a change of the frets
+# held plays, while one is held: a fret pressed, or one released while another is held), Star Power on the D-pad or
+# Back, the whammy bar on either stick (src/controller_layout.cpp). "guitar": an Xbox 360 guitar's controls, frets on
+# A, B, Y, X and LB, strumming on the D-pad, the whammy bar on the right stick, the tilt on its Y, Star Power on Back.
+gamepad_guitar_layout = "gh3"
+# The keyboard playing guitar plays a song on the same layout (SDK change 125, keyboard_guitar_layout; Band Hero Launcher's
+# Keyboard page, Play style): the game's controller code plays its fret keys (green, red, yellow, blue, orange on the
+# keys of A, B, Y, X and LB below; the open note on RB's), a fret key pressed plays, no strum: in a song the arrows (the
+# D-pad) do nothing and the strum switch (mnk_tap_target) does not act. Star Power on Back's keys, the whammy bar on
+# the right stick's key. The menus keep the keys as they are. "guitar": an Xbox 360 guitar's, as before (the arrows
+# strum).
+keyboard_guitar_layout = "gh3"
 # A PS3 Guitar Hero guitar (a CRKD guitar on its P3 setting too): yellow and blue, swapped on that protocol, put right,
 # and its whammy bar, which rests at the middle of its axis, at rest there.
 guitar_ps3_protocol = true
@@ -202,6 +237,11 @@ ghbandhero_fx_depth_of_field = true
 ghbandhero_fx_grain = true
 ghbandhero_fx_color = true
 ghbandhero_fx_vignette = true
+# The 3D scene drawn in every frame (src/split_render.cpp): the game draws the venue and the crowd in one frame and the
+# band and the screen effects in the next, so its 3D image changes at half the frame rate (30 times a second on the
+# console; the note highway and the HUD every frame). true turns that split off: the whole scene in every frame, for
+# about twice the 3D work a frame (CPU and GPU). false = as on the console.
+ghbandhero_scene_every_frame = false
 # The game's own debug menu (Neversoft's, src/debug_menu.cpp): true adds an item named (debug menu) to the main menu
 # and a Debug Menu item to the pause menu (Unlock All, Skip Into Song, Change Venue, Select Slomo, Show Song Time, Toggle GPU
 # Time, ...). Some items need Neversoft's development tools and do nothing. false = as on the console.
@@ -210,6 +250,49 @@ ghbandhero_debug_menu = false
 # loaded, as if Start were pressed then: Party Play right after the loading (src/intro.cpp). false = as on the
 # console.
 ghbandhero_skip_intro = false
+# Guitar Hero World Tour's Star Power sound (src/star_power_reverb.cpp, from GH Warriors of Rock): while a player's
+# Star Power is on, their instrument goes through World Tour's echo timed to the song, reverb and high pass, with World
+# Tour's settings for each instrument and for one or more players, instead of the venue's reverb. The band, the crowd
+# and the vocals do not change. false = as on the console. With it on, ghbandhero_star_power_reverb_send_db (dB added to
+# World Tour's send, 0) and ghbandhero_star_power_reverb_multi_preset (true: World Tour's settings for several players for
+# one player too) can be added here to tune it.
+ghbandhero_star_power_reverb = false
+# The launcher's Mods (src/mods.cpp), changes of the game's own script data when it starts. The note highway's size
+# with one player in percent (the launcher offers 80-120; from the strike line, the gems, sidebars and meters with it);
+# its length in time in percent (100, 125, 150, 170: the notes seen that much earlier, the console's highway continued
+# in its own perspective, at the same speed at the strike line, for every player); its perspective in percent of the
+# console's (25-150: flatter or steeper), and with ghbandhero_highway_keep_speed the notes at the console's speed at the
+# strike line whatever the perspective (the times on the highway shorter below 100, longer above); its look, "original"
+# or "dark" (the community's black highway). 100, 100, 100, false and "original" = as on the console.
+ghbandhero_highway_scale = 100
+ghbandhero_highway_length = 100
+ghbandhero_highway_perspective = 100
+ghbandhero_highway_keep_speed = false
+ghbandhero_highway_style = "original"
+# The whammy bar's bend of a held sustain (true, as on the console; false keeps the pitch, the bar still wobbles the
+# note and fills Star Power), and how much of your instrument's track stays on a miss or a strum without a note, in
+# percent (0, as on the console: muted until the next hit; 100 = never muted; guitar and bass; not in the
+# single-stream songs). src/mods.cpp.
+ghbandhero_whammy_sound = true
+ghbandhero_miss_lower = true
+ghbandhero_miss_volume = 0
+# The note highway's opacity in percent: below 100 the venue shows through it (src/mods.cpp). 100 = as on the console.
+ghbandhero_highway_opacity = 100
+# Images that replace the game's textures (NativeXRenderer's D176): a folder next to the executable, each image named
+# by the texture's hash (16 hexadecimal digits, then anything; .png, .jpg or .jpeg; subfolders too); the note highway's
+# is DD482D15759B682F (computed from the disc; native_x_renderer_texture_log = true logs every texture's hash as it
+# loads).
+native_x_renderer_texture_replacements = "textures"
+# The note highway's picture from a folder (src/highway_images.cpp; the launcher's Mods > Highway gallery writes them):
+# the folder, the picture (a file of it, "<random>" for a random one at each song, empty for the game's own), where a
+# random one comes from ("all" or "favorites"), the favorites (names separated by |), and how bright pictures are
+# darkened toward black for all ("off", "auto" or a percent) and for some (name:value separated by |).
+ghbandhero_highway_folder = ""
+ghbandhero_highway_image = ""
+ghbandhero_highway_random_from = "all"
+ghbandhero_highway_favorites = ""
+ghbandhero_highway_dim = "off"
+ghbandhero_highway_image_dims = ""
 # The mouse cursor hidden over the game after cursor_auto_hide_ms without moving it (shown again when it moves, while
 # another window has the focus, and over the SDK's overlays). false = always shown.
 cursor_auto_hide = true

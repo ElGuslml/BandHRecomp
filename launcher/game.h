@@ -105,13 +105,35 @@ inline constexpr bool kHasDlaa = false;
 // native_x_renderer_shadow_scale = 4, and their image is right: here GH5's 400x400 map (EDRAM base 1709), the only one
 // found in Party Play (2026-11-08), with GH5's filter fix (GHBandHeroShadowFilterHook). Ultra draws it at 1600x1600.
 inline constexpr bool kShadowQuality = kHasNativeXRenderer && true;
+// Settings > Audio's Channels row with 5.1 (RecompLauncher 3.31; src/startup.cpp's audio_speaker_config_from_output):
+// the game told its speakers, Dolby Digital only with 5.1 (Automatic on a surround device); its timing kept the same
+// (src/mods.cpp's ghbandhero_dolby_timing), as GH Warriors of Rock.
+inline constexpr bool kSpeakerChoice = true;
 
 // The Graphics page's frame rate row: kFrameRateCvar's choices (game_types.h's FrameRate) and the value without the
 // key. Here src/framerate.cpp's ghbandhero_frame_rate, the frame rate itself: 60 as on the console, above it the emulated
 // vblank's rate (src/options.cpp), which the game follows at its own speed.
 inline constexpr const char* kFrameRateCvar = GAME_FRAME_RATE_CVAR;
 inline constexpr bool kFrameRateIsBool = false;
-inline constexpr std::array<FrameRate, 6> kFrameRates{{{60, 60}, {120, 120}, {144, 144}, {160, 160}, {165, 165}, {240, 240}}};
+// Above 240 (RecompLauncher 3.31, with V-Sync off; Gustavo, 2026-11-18, as GH Warriors of Rock): 300, 360, 480 and
+// Unlimited (1000 Hz, the SDK's ceiling), experimental: the rings of src/framerate.cpp hold a 60th of a second at 1000.
+// Between 60 and 120 (GH Warriors of Rock's local_docs/73, 2.3): 72, 75, 90 and 100, for a PC that cannot hold 120. With
+// V-Sync they are even on a monitor whose rate they fit (72 on 144 Hz, 75 on 150, 100 on 200), with V-Sync off or a
+// variable refresh rate.
+inline constexpr std::array<FrameRate, 14> kFrameRates{{{60, 60},
+                                                        {72, 72},
+                                                        {75, 75},
+                                                        {90, 90},
+                                                        {100, 100},
+                                                        {120, 120},
+                                                        {144, 144},
+                                                        {160, 160},
+                                                        {165, 165},
+                                                        {240, 240},
+                                                        {300, 300},
+                                                        {360, 360},
+                                                        {480, 480},
+                                                        {1000, 0}}};
 inline constexpr int kFrameRateDefault = 60;
 
 // The Xenos path's MSAA turned off (src/msaa.cpp): the Graphics page's antialiasing row with Xenos, the game's own
@@ -141,18 +163,80 @@ inline constexpr std::array<Language, 5> kLanguages{{
 // titles, hints and help are game.cpp's (GameTexts::toggles and toggle_help, in this order).
 // The screen effects (src/screen_fx.cpp, docs/fixes-from-gh-van-halen.md), all on as on the console: the grain only
 // with the color correction (GH Van Halen's rule: without that pass its grain was far stronger). GH Van Halen's ink
-// blotches are not part of Band Hero's composite: no switch. Then two in Settings > Game, off as on the console (GH
+// blotches are not part of Band Hero's composite: no switch. Display > Smoothness: the 3D scene drawn in every frame, off as
+// on the console (the engine's split render mode off, src/split_render.cpp, as GH Warriors of Rock's). Then two in
+// Settings > Game, off as on the console (GH
 // Metallica's, docs/fixes-from-gh-metallica.md): the boot's intro video ended once the game has loaded
-// (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp).
-inline constexpr std::array<Toggle, 7> kToggles{{
+// (src/intro.cpp) and the game's debug menu (src/debug_menu.cpp). Launcher 3.32 (GH Warriors of Rock's): Mods >
+// Highway's notes at the console's speed whatever the perspective (off as on the console; under the perspective's row,
+// locked at 100 %; src/mods.cpp).
+inline constexpr std::array<Toggle, 12> kToggles{{
     {"ghbandhero_fx_bloom", true, ToggleGroup::kScreenEffects},
     {"ghbandhero_fx_depth_of_field", true, ToggleGroup::kScreenEffects},
     {"ghbandhero_fx_color", true, ToggleGroup::kScreenEffects},
     {"ghbandhero_fx_grain", true, ToggleGroup::kScreenEffects, "ghbandhero_fx_color"},
     {"ghbandhero_fx_vignette", true, ToggleGroup::kScreenEffects},
-    {"ghbandhero_skip_intro", false},
-    {"ghbandhero_debug_menu", false},
+    {"ghbandhero_scene_every_frame", false, ToggleGroup::kSmoothness},
+    {"ghbandhero_skip_intro", false, ToggleGroup::kStart},
+    {"ghbandhero_debug_menu", false, ToggleGroup::kModsTools},
+    {"ghbandhero_whammy_sound", true, ToggleGroup::kModsSound},
+    {"ghbandhero_star_power_reverb", false, ToggleGroup::kModsSound},
+    {"ghbandhero_miss_lower", true, ToggleGroup::kModsSound},
+    {"ghbandhero_highway_keep_speed", false, ToggleGroup::kModsHighway, "ghbandhero_highway_perspective"},
 }};
+
+// Rows of the game's own with several values (game_types.h's Choice, launcher 3.29), GH Warriors of Rock's: Mods >
+// Highway, the note highway's size with one player (80-120 % by 5), its length in time (the console's highway
+// continued in its own perspective, the notes seen earlier at the same speed: 100, 125, 150, 170 %), its perspective
+// (25-150 % of the console's compression by 25) and its look (the original, or the community's black highway), each a
+// change of the game's script data when it starts (src/mods.cpp); Band Hero's highway_guitar1, highway_scale_chart and
+// GeneratePosTable are GH Warriors of Rock's values. Mods > Sound: how much of the player's instrument track stays on a
+// miss (0-100 % by 10; 0 = muted as on the console). Their titles, hints, help and the styles' names are game.cpp's.
+inline constexpr const char* kHighwayScales[] = {"80", "85", "90", "95", "100", "105", "110", "115", "120"};
+inline constexpr const char* kHighwayLengths[] = {"100", "125", "150", "170"};
+inline constexpr const char* kHighwayPerspectives[] = {"25", "50", "75", "100", "125", "150"};
+inline constexpr const char* kHighwayStyles[] = {"original", "dark"};
+inline constexpr const char* kHighwayOpacities[] = {"100", "90", "80", "70", "60", "50", "40", "30"};
+inline constexpr const char* kMissVolumes[] = {"0", "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"};
+inline constexpr std::array<Choice, 6> kChoices{{
+    {"ghbandhero_highway_scale", kHighwayScales, "100", ToggleGroup::kModsHighway, " %"},
+    {"ghbandhero_highway_length", kHighwayLengths, "100", ToggleGroup::kModsHighway, " %"},
+    {"ghbandhero_highway_perspective", kHighwayPerspectives, "100", ToggleGroup::kModsHighway, " %"},
+    {"ghbandhero_highway_style", kHighwayStyles, "original", ToggleGroup::kModsHighwayLook, "", true},
+    {"ghbandhero_highway_opacity", kHighwayOpacities, "100", ToggleGroup::kModsHighwayLook, " %"},
+    {"ghbandhero_miss_volume", kMissVolumes, "0", ToggleGroup::kModsSound, " %", false, "ghbandhero_miss_lower"},
+}};
+
+// Launcher 3.30: the Mods tab's Highway section, its gallery of the player's pictures (src/highway_images.cpp reads
+// the cvars) and its preview, drawn from the installed game's own textures. Band Hero keeps the gems' parts in
+// data/compressed/ZONES/z_in_game.pak.xen's pak\highway\basic_gems\basic_gems.tex (GH Warriors of Rock's keys), but
+// its highway, Highway_Judy_fm_01, in data/compressed/ZONES/global.pak.xen's models/guitarists/judy_1_highway.tex
+// (launcher 3.31.1's highway_pak); its sustain is WhammyBAR_Grey_Cthru (WhammyBAR_Grey_wide is not in Band Hero, and its
+// normal sustain texture is empty in the dictionary).
+inline constexpr bool kHighwayPreview = true;
+inline constexpr HighwayGallery kHighwayGallery{
+    "ghbandhero_highway_folder",     "ghbandhero_highway_image",       "ghbandhero_highway_random_from", "ghbandhero_highway_favorites",
+    "ghbandhero_highway_dim",        "ghbandhero_highway_image_dims",  L"Highways",
+    "ghbandhero_highway_scale",      "ghbandhero_highway_length",      "ghbandhero_highway_perspective", "ghbandhero_highway_opacity",
+    "ghbandhero_highway_style",      "dark",                    "ghbandhero_highway_keep_speed",
+};
+inline constexpr HighwayAssets kHighwayAssets{
+    L"data/compressed/ZONES/z_in_game.pak.xen",
+    0xF3FB8221,  // pak\highway\basic_gems\basic_gems.tex
+    0xA177C495,  // Highway_Judy_fm_01 (in highway_pak)
+    0x388DD606,  // sidebar02
+    0x2ED9AC77,  // string
+    0x12871CA5,  // FretBar_Med01_DNC
+    0x452CB6D1,  // button_grey_Collar01 (the strike line's rings)
+    0xCFA3D7FA,  // button_grey_Base01 (a gem's rim)
+    0x15517A60,  // Button_Grey_Gradient01 (a gem's colored body)
+    0xA8561777,  // Button_grey_Cap01 (a gem's cap)
+    0xF03CA939,  // WhammyBAR_Grey_Cthru (a sustain)
+    // guitar_tweaks.qb's highway_guitar1 and highway_scale_chart's first row (src/mods.cpp): GH Warriors of Rock's.
+    655.0f, 350.0f, 160.0f, 512.0f, 1.00108, 1.00125, 1024, 1.5f, 50.0f, 1.5f,
+    L"data/compressed/ZONES/global.pak.xen",
+    0xFE28C3A2,  // models/guitarists/judy_1_highway.tex
+};
 
 // --- Downloadable content ---
 
@@ -238,6 +322,12 @@ inline constexpr const char* kKeyboardTapTarget = "dpad_down";
 // The whammy bar's row on each controller playing guitar (page_controls.cpp): how far the game reads the bar, and its
 // calibration (the SDK's gamepad_whammy_calibration, recomp change 60: the axis it is on, at rest and all the way).
 inline constexpr bool kHasWhammy = true;
+// Guitar Hero III's controller layout for a controller playing guitar, on by default (src/startup.cpp's
+// gamepad_guitar_layout = "gh3"; the SDK's change 112), as in GH Warriors of Rock: this game gives a plain controller the
+// vocals, so it is told a controller is a guitar, and in a song the controller plays as Guitar Hero III's did, on
+// buttons of its own (the launcher's "In a song" rows, the SDK's gamepad_song_binds, change 113), through the game's own
+// controller code (src/controller_layout.cpp).
+inline constexpr bool kHasGh3PadLayout = true;
 
 // --- Singing ---
 
@@ -284,6 +374,11 @@ struct GameTexts {
   std::array<const char*, kToggles.size() * 2> toggles;
   // kToggles' help, the Settings tab's panel for the row in focus; null: the hint.
   std::array<const char*, kToggles.size()> toggle_help{};
+  // kChoices' rows (launcher 3.29): a title and a hint each, their help (null: the hint) and their values' names (null
+  // or missing: the value and the row's suffix).
+  std::array<const char*, kChoices.size() * 2> choices{};
+  std::array<const char*, kChoices.size()> choice_help{};
+  std::array<std::array<const char*, 2>, kChoices.size()> choice_values{};
   // The first run's last screen (the game installed), in the game's spirit; null: the launcher's own.
   const char* done_title = nullptr;
   const char* done_text = nullptr;

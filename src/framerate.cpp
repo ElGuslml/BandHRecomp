@@ -16,6 +16,10 @@
 //
 // The waits of src/thread_waits.cpp follow the vblank's rate (VblankPeriod).
 
+#include "framerate.h"
+#include "keyboard.h"
+
+#include <native_x_renderer/native_x_renderer.h>
 #include <rex/cvar.h>
 #include <rex/logging.h>
 #include <rex/ppc/context.h>
@@ -31,9 +35,13 @@
 #include <mutex>
 #include <unordered_map>
 
+// src/song_sync.cpp's: begin_song_after_intro (below) runs every frame with it.
+REXCVAR_DECLARE(bool, ghbandhero_song_start_sync);
+
 REXCVAR_DEFINE_INT32(ghbandhero_frame_rate, 60, "GHBandHero",
-                     "Frame rate: 60 as on the console, or 120, 144, 160, 165 or 240: the emulated vertical blank runs "
-                     "at that rate (video_mode_refresh_rate, set at startup) and the game presents on every one; its "
+                     "Frame rate: 60 as on the console, or 72, 75, 90, 100, 120, 144, 160, 165 or 240, or with "
+                     "V-Sync off 300, 360, 480 or 1000 (experimental; the launcher's Unlimited): the emulated "
+                     "vertical blank runs at that rate (video_mode_refresh_rate, set at startup) and the game presents on every one; its "
                      "clock is real time, so it keeps its speed");
 
 REXCVAR_DEFINE_BOOL(ghbandhero_frame_rate_fix, true, "GHBandHero",
@@ -60,8 +68,9 @@ double VblankRate() {
   const auto now = std::chrono::steady_clock::now();
   if (read == std::chrono::steady_clock::time_point{} || now - read > std::chrono::seconds(1)) {
     read = now;
-    rate = rex::cvar::Query<bool>("vsync") ? std::clamp(rex::cvar::Query<double>("video_mode_refresh_rate"), 24.0, 240.0)
-                                           : 1000.0;
+    rate = rex::cvar::Query<bool>("vsync")
+               ? std::clamp(rex::cvar::Query<double>("video_mode_refresh_rate"), 24.0, 1000.0)
+               : 1000.0;
   }
   return rate;
 }
@@ -125,7 +134,89 @@ void GHBandHeroMainFrameHook() {
     g_average_frame.store(average > 0.0 ? average + 0.1 * (seconds - average) : seconds, std::memory_order_relaxed);
   }
   last = now;
+  // NativeXRenderer's summary line counts a song's frames apart (its D181): a player's log then measures the play.
+  native_x_renderer::SetMainActivity(ghbandhero::PlayingSong());
 }
+
+// The frames of a song by the vertical blanks each took, for the log (GH Warriors of Rock's src/framerate.cpp): at a
+// fixed rate a frame that misses its blank waits a whole one more, so the frames that took two or more are the ones the
+// player saw twice. sub_8254FB40, the render thread presenting a frame, waits for its blank (the present interval, 1
+// in this game) and then stores the blank count (sub_823B09D8, the counter 0x82D7DFD0) at 0x82E848A0; every call with
+// an interval reaches that store once, and the difference from the last frame's count is the blanks this frame took.
+// With an interval of 0 the game skips the store, and with the blank every millisecond (the launcher's Unlimited, or
+// the SDK's vsync off) a blank is no display refresh: nothing is counted then. A line every 3,000 of a song's frames
+// and one at its end (the music's stop).
+namespace {
+
+struct FrameBlanks {
+  uint64_t frames = 0;  // the song's frames counted
+  uint64_t two = 0;     // of them, those that took two blanks
+  uint64_t more = 0;    // three or more
+  uint64_t next_line = 3000;
+};
+std::mutex g_blanks_mutex;
+FrameBlanks g_blanks;
+uint64_t g_last_blank = 0;  // the last frame's count (only the render thread, the hook's caller)
+
+void LogFrameBlanks(const FrameBlanks& blanks, const char* when) {
+  const uint64_t missed = blanks.two + blanks.more;
+  REXLOG_INFO("[frames] {}: {} frames at {:.0f} Hz, {} took two vertical blanks and {} three or more ({:.3f} % two or "
+              "more)",
+              when, blanks.frames, VblankRate(), blanks.two, blanks.more,
+              blanks.frames ? 100.0 * double(missed) / double(blanks.frames) : 0.0);
+}
+
+}  // namespace
+
+// [[midasm_hook]] 0x8254FDB8 (sub_8254FB40: before "std r3,18592(r29)", r3 = the blank count when this frame is
+// presented). hooks/perf_measure.toml.
+void GHBandHeroFrameBlanksHook(PPCRegister& r3) {
+  const uint64_t blank = r3.u64;
+  const uint64_t last = g_last_blank;
+  g_last_blank = blank;
+  if (last == 0 || blank <= last || VblankRate() >= 1000.0 || !ghbandhero::PlayingSong()) {
+    return;
+  }
+  const uint64_t took = blank - last;
+  FrameBlanks line;
+  bool log = false;
+  {
+    std::lock_guard lock(g_blanks_mutex);
+    ++g_blanks.frames;
+    if (took == 2) {
+      ++g_blanks.two;
+    } else if (took > 2) {
+      ++g_blanks.more;
+    }
+    if (g_blanks.frames >= g_blanks.next_line) {
+      g_blanks.next_line += 3000;
+      line = g_blanks;
+      log = true;
+    }
+  }
+  if (log) {
+    LogFrameBlanks(line, "the song so far");
+  }
+}
+
+namespace ghbandhero {
+
+void FrameBlanksSongEnded() {
+  FrameBlanks song;
+  {
+    std::lock_guard lock(g_blanks_mutex);
+    song = g_blanks;
+    g_blanks = {};
+  }
+  // The frames after the music's stop still have the players' updates until the results screen: the next of the three
+  // hooks (SongUnload when the results are left) would find a fifth of a second of them and log them as another
+  // "song" (GH WoR's local_docs/71, step 1.0). A count under a second's frames is no song.
+  if (song.frames >= uint64_t(VblankRate())) {
+    LogFrameBlanks(song, "the song");
+  }
+}
+
+}  // namespace ghbandhero
 
 // [[midasm_hook]] 0x82631EF0 and 0x82632178 (sub_82631D88): before "extsw r8,r30" / "extsw r11,r30", r30 = the
 // game's vertical blanks per second, which divides a clock counted in vertical blanks (the vblank counter
@@ -195,8 +286,16 @@ constexpr uint32_t kFrameExactScripts[] = {
 // frames (GHBandHeroDrummerWaitHook), as GH WoR's script wrote them, and the step is what the pass took.
 constexpr uint32_t kDrummerScript = 0x473164C7;
 
+// begin_song_after_intro (src/song_sync.cpp, with ghbandhero_song_start_sync; GH Warriors of Rock's): a loop of
+// "GetSongTimeMs, if time >= starttimeafterintro break, wait 1 gameframe" that starts the song's music in its first pass
+// with the clock at the song's start. Held to 60 passes a second the music started 0 to 16.7 ms after it at any frame
+// rate; every frame, within a frame (6.25 ms at 160 FPS). A poll of the clock: running it every frame does not speed
+// anything up.
+constexpr uint32_t kSongStartPoll = 0x647F97EE;
+
 bool RunsEveryFrame(uint32_t script) {
   return script == kBandRenderScript || script == kDrummerScript ||
+         (script == kSongStartPoll && REXCVAR_GET(ghbandhero_song_start_sync)) ||
          std::find(std::begin(kSelfTimedScripts), std::end(kSelfTimedScripts), script) != std::end(kSelfTimedScripts) ||
          std::find(std::begin(kFrameExactScripts), std::end(kFrameExactScripts), script) != std::end(kFrameExactScripts);
 }
@@ -298,9 +397,19 @@ void GHBandHeroFrameWaitCountHook(PPCRegister& r3, PPCRegister& r11) {
 // seen with this; the audio calibration polls the same way). Each script is given the presses of the updates since its previous run that
 // it did not see, once, from the last 60th of a second and a frame (of the frames' recent length): they are added to the
 // state's pressed bits while its ControllerMake runs, then the bits are put back.
+// Star Power by Select (Back) is read the same way, not through ControllerMake (GH Warriors of Rock's fix, Panchovix's
+// pull request #5 there): the script check_for_star_power (0xB1330633, one of the scripts whose waits are held) calls
+// check_for_star_power_CFunc (sub_822390E8; its name in the game's table of script functions) once a pass and waits 1
+// game frame. Its check of Select is sub_824C0328(pad, 0xB40D153F = 'select') at 0x82239530, bit 0x100 of the pressed
+// bits at +52, the same one-frame edge, and on a plain gamepad up, down, left and right after it (0x82239584-0x822395D8;
+// the Guitar Hero III layout's Star Power on the D-pad, src/controller_layout.cpp). That wait is held too, so above
+// 60 FPS the script ran every second frame or so and presses fell in frames it did not look at. It is given the
+// skipped presses the same way while sub_822390E8 runs, with its own record of what was patched.
 namespace {
 
-constexpr int kKeptUpdates = 8;
+// Enough for the updates between two runs of a script held to 60 a second at up to 1000 frames a second (16); with
+// 8, presses were lost above about 480 (GH Warriors of Rock's local_docs/56).
+constexpr int kKeptUpdates = 32;
 
 struct InputUpdates {
   uint32_t state = 0;  // the input state's guest address
@@ -324,6 +433,8 @@ InputUpdates g_input[4];
 std::unordered_map<uint64_t, ScriptPolls> g_script_polls;  // by script << 32 | state
 thread_local PatchedState g_patched[4];
 thread_local int g_patched_count = 0;
+thread_local PatchedState g_star_patched[4];
+thread_local int g_star_patched_count = 0;
 
 uint8_t* GuestBase() {
   auto* kernel = rex::system::kernel_state();
@@ -361,12 +472,16 @@ void GHBandHeroInputUpdateHook(PPCRegister& r30, PPCRegister& r9) {
   }
 }
 
-// [[midasm_hook]] at the entry of sub_824C0770 (ControllerMake): r4 = the script.
-void GHBandHeroButtonPollHook(PPCRegister& r4) {
-  g_patched_count = 0;
+namespace {
+
+// A script polling the pressed bits (r4 at its script function's entry) is given the presses of the updates since its
+// previous run that it did not see: they are added to the states' bits at +52 and recorded in patched. Returns the bits
+// given.
+uint32_t GiveSkippedPresses(uint32_t script, PatchedState* patched, int& count) {
+  count = 0;
   uint8_t* base = GuestBase();
   if (!HighRate() || !base) {
-    return;
+    return 0;
   }
   const auto now = std::chrono::steady_clock::now();
   const auto window = std::chrono::duration<double>(1.0 / 60.0 + FrameInterval());
@@ -374,11 +489,12 @@ void GHBandHeroButtonPollHook(PPCRegister& r4) {
   if (g_script_polls.size() > 256) {
     std::erase_if(g_script_polls, [&](const auto& entry) { return now - entry.second.last > std::chrono::seconds(1); });
   }
+  uint32_t given = 0;
   for (const InputUpdates& input : g_input) {
     if (input.state == 0) {
       continue;
     }
-    ScriptPolls& polls = g_script_polls[uint64_t(r4.u32) << 32 | input.state];
+    ScriptPolls& polls = g_script_polls[uint64_t(script) << 32 | input.state];
     if (polls.last == std::chrono::steady_clock::time_point{} || now - polls.last > window * 4) {
       polls.run_seq = polls.prev_seq = input.seq;  // a script new to polling: only the current update
     } else if (polls.run_seq != input.seq) {
@@ -397,22 +513,45 @@ void GHBandHeroButtonPollHook(PPCRegister& r4) {
     const uint32_t original = LoadWord(base, input.state + 52);
     if (missed & ~original) {
       StoreWord(base, input.state + 52, original | missed);
-      g_patched[g_patched_count++] = {input.state, original | missed, original};
+      patched[count++] = {input.state, original | missed, original};
+      given |= missed & ~original;
     }
+  }
+  return given;
+}
+
+// At the script function's exit: the pressed bits recorded in patched put back.
+void TakeBackPresses(const PatchedState* patched, int& count) {
+  uint8_t* base = GuestBase();
+  for (int i = 0; i < count && base; ++i) {
+    if (LoadWord(base, patched[i].state + 52) == patched[i].written) {
+      StoreWord(base, patched[i].state + 52, patched[i].original);
+    }
+  }
+  count = 0;
+}
+
+}  // namespace
+
+// [[midasm_hook]] at the entry of sub_824C0770 (ControllerMake): r4 = the script.
+void GHBandHeroButtonPollHook(PPCRegister& r4) { GiveSkippedPresses(r4.u32, g_patched, g_patched_count); }
+
+// [[midasm_hook]] 0x824C0830 (sub_824C0770's exit, every path): the pressed bits put back.
+void GHBandHeroButtonPollEndHook() { TakeBackPresses(g_patched, g_patched_count); }
+
+// [[midasm_hook]] at the entry of sub_822390E8 (check_for_star_power_CFunc): r4 = the script. Its own record, so a
+// ControllerMake between its entry and its exit would not lose it.
+void GHBandHeroStarPowerPollHook(PPCRegister& r4) {
+  const uint32_t given = GiveSkippedPresses(r4.u32, g_star_patched, g_star_patched_count);
+  static std::atomic<int> logged{0};
+  if ((given & 0x100) && logged.fetch_add(1) < 20) {
+    REXLOG_INFO("[frame rate] star power: a Back press from a frame check_for_star_power skipped was given to it");
   }
 }
 
-// [[midasm_hook]] 0x824C0830 (sub_824C0770's exit, every path): the pressed bits put back.
-void GHBandHeroButtonPollEndHook() {
-  uint8_t* base = GuestBase();
-  for (int i = 0; i < g_patched_count && base; ++i) {
-    const PatchedState& patched = g_patched[i];
-    if (LoadWord(base, patched.state + 52) == patched.written) {
-      StoreWord(base, patched.state + 52, patched.original);
-    }
-  }
-  g_patched_count = 0;
-}
+// [[midasm_hook]] 0x82239748 and 0x82239894 (sub_822390E8's two exits, addi r1,r1,1568; the second a branch target that
+// every other path reaches): the pressed bits put back.
+void GHBandHeroStarPowerPollEndHook() { TakeBackPresses(g_star_patched, g_star_patched_count); }
 
 // The whammy on a sustain (the note hold update sub_821E9FA8 -> sub_821E9C30, run every frame for each player:
 // sub_821D51F8 -> sub_821EB290 -> sub_821EAB98, 120 calls a second at 120 FPS): sub_821E7168 (the whammy bar;
@@ -427,9 +566,12 @@ void GHBandHeroButtonPollEndHook() {
 // frames keeps the number it began with: one that changed as the rate moved could jump past it.
 namespace {
 
+// A 60th of a second back at up to 1000 frames a second: 17 samples (8 reached it up to about 480).
+constexpr int kWhammySamples = 32;
+
 struct WhammySamples {
-  std::chrono::steady_clock::time_point when[8] = {};
-  float position[8] = {};
+  std::chrono::steady_clock::time_point when[kWhammySamples] = {};
+  float position[kWhammySamples] = {};
   int next = 0;
 };
 
@@ -446,8 +588,8 @@ void CompareWhammyOverSixtieth(int axis, uint32_t object, PPCRegister& position,
   const double frame = FrameInterval();
   std::lock_guard lock(g_whammy_mutex);
   WhammySamples& samples = g_whammy[uint64_t(object) << 1 | uint64_t(axis)];
-  for (int i = 1; i <= 8; ++i) {
-    const int slot = (samples.next - i) & 7;
+  for (int i = 1; i <= kWhammySamples; ++i) {
+    const int slot = (samples.next - i) & (kWhammySamples - 1);
     const double age = std::chrono::duration<double>(now - samples.when[slot]).count();
     if (age >= 1.0 / 60.0 - 0.5 * frame) {
       if (age <= 1.0 / 60.0 + 1.5 * frame) {
@@ -458,7 +600,7 @@ void CompareWhammyOverSixtieth(int axis, uint32_t object, PPCRegister& position,
   }
   samples.when[samples.next] = now;
   samples.position[samples.next] = float(position.f64);
-  samples.next = (samples.next + 1) & 7;
+  samples.next = (samples.next + 1) & (kWhammySamples - 1);
 }
 
 // The console's frames (60ths of a second) in frames of the recent length.

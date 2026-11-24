@@ -88,6 +88,12 @@ spanish.DeleteGameFiles=¿Desea borrar también los archivos del juego extraído
 german.DeleteGameFiles=Sollen auch die von Ihrer Disc extrahierten Spieldateien gelöscht werden (der Ordner assets, 5,1 GB)?%n%nUm wieder zu spielen, bräuchten Sie erneut Ihre ISO.
 french.DeleteGameFiles=Supprimer aussi les fichiers du jeu extraits de votre disque (le dossier assets, 5,1 Go) ?%n%nPour rejouer, il vous faudrait à nouveau votre ISO.
 italian.DeleteGameFiles=Eliminare anche i file del gioco estratti dal disco (la cartella assets, 5,1 GB)?%n%nPer giocare di nuovo servirà ancora la tua ISO.
+english.InstallGameInput=Install Microsoft GameInput (Xbox One guitars, such as the PDP Riffmaster, need it)
+spanish.InstallGameInput=Instalar Microsoft GameInput (lo necesitan las guitarras de Xbox One, como la PDP Riffmaster)
+german.InstallGameInput=Microsoft GameInput installieren (Xbox-One-Gitarren wie die PDP Riffmaster brauchen es)
+french.InstallGameInput=Installer Microsoft GameInput (nécessaire aux guitares Xbox One, comme la PDP Riffmaster)
+italian.InstallGameInput=Installa Microsoft GameInput (serve alle chitarre Xbox One, come la PDP Riffmaster)
+
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
@@ -100,6 +106,10 @@ Name: "{autoprograms}\{#ShortcutName}"; Filename: "{app}\{#LauncherExe}"
 Name: "{autodesktop}\{#ShortcutName}"; Filename: "{app}\{#LauncherExe}"; Tasks: desktopicon
 
 [Run]
+; Microsoft GameInput (Xbox One guitars and drum kits, such as the PDP Riffmaster, are read through its API 3): offered
+; when the release has its installer and this PC lacks it. Its package installs for the whole PC, so Windows asks for an
+; administrator's consent; the launcher's Controls page offers it again later.
+Filename: "msiexec.exe"; Parameters: "/i ""{app}\GameInputRedist.msi"" /passive /norestart"; Description: "{cm:InstallGameInput}"; Flags: postinstall skipifsilent waituntilterminated shellexec; Check: NeedsGameInput
 Filename: "{app}\{#LauncherExe}"; Description: "{cm:LaunchProgram,{#ShortcutName}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
@@ -117,6 +127,22 @@ Type: filesandordirs; Name: "{app}\logs"
 var
   DeleteUserData: Boolean;
   DeleteGameFiles: Boolean;
+
+// Microsoft GameInput's API 3 is its redistributable, GameInputRedist.dll 3 or newer, in Program Files\Microsoft
+// GameInput or in System32 (Windows' own GameInput.dll is API 0). Asked for only when the release has its installer.
+function NeedsGameInput: Boolean;
+var
+  Version: String;
+begin
+  Result := False;
+  if not FileExists(ExpandConstant('{app}\GameInputRedist.msi')) then
+    Exit;
+  if GetVersionNumbersString(ExpandConstant('{commonpf64}\Microsoft GameInput\x64\GameInputRedist.dll'), Version) or
+     GetVersionNumbersString(ExpandConstant('{sys}\GameInputRedist.dll'), Version) then
+    Result := StrToIntDef(Copy(Version, 1, Pos('.', Version) - 1), 0) < 3
+  else
+    Result := True;
+end;
 
 // Before the files go, the questions; after, what was chosen. Nothing of the player's is deleted by a silent
 // uninstall or by default (No is the default answer).

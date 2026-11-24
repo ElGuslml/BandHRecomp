@@ -13,6 +13,9 @@
 setjmp_address = 0x829117A0
 longjmp_address = 0x82911480
 
+# A feature's or a fix's hooks in a file of their own, as GH Warriors of Rock's (its docs/development.md).
+includes = ["hooks/song_sync.toml", "hooks/perf_measure.toml", "hooks/draw_stamps.toml"]
+
 # Codegen: the registers no call passes on are local variables of each function, not fields of the PPCContext, so
 # the compiler keeps them in host registers and the __savegprlr/__restgprlr helpers are elided, as in GH Van Halen,
 # KameoRecomp, GRAWRecomp and POTCAWERecomp. non_argument_as_local (r0, r2, r11, r12) stays off: the SEH funclets read
@@ -27,6 +30,18 @@ cr_as_local = true
 ctr_as_local = true
 xer_as_local = true
 reserved_as_local = true
+# The XDK's inline Interlocked operations disable one core's interrupts around their lwarx / stwcx. (mfmsr rX,
+# mtmsrd r13, ..., mtmsrd rX). By default the codegen turns the three into the SDK's process-wide recursive mutex; in
+# GH Warriors of Rock, the same engine, that took 10.7 % of a core at 60 FPS and 21.7 % at 120 on four cores, the job
+# workers a fifth of their time (its local_docs/72, Phase 1 step 1.1b; -7 to -8 % of the process's cores with this).
+# skip_msr emits nothing for them, so each site is the host's atomic operation alone. That is the console's meaning:
+# the pair stopped interrupts on one core, never the other cores, so the game's code never had these operations
+# excluded from each other, only each made atomic. recomp-tools' tools/codegen/msr_sites.py checks it by address after
+# every codegen: 224 sites in 129 functions here, each one reserved load and store with register arithmetic, compares
+# and branches, and mfmsr's register read by its restores only (two sites in sub_82726320 are followed by mftb r9,
+# which writes r9 and does not read mfmsr's r8: the tool read it as a read until it decoded mftb). The SDK's own users
+# of the lock on guest words (critical sections, spin locks, SLists) use the host's atomics.
+skip_msr = true
 
 [functions]
 # The functions that call setjmp keep their registers in the context (share_registers): the host longjmp returns
@@ -115,6 +130,13 @@ address = 0x8248A458   # mflr r12 (entry of sub_8248A458: a controller port's up
 name = "GHBandHeroControllerPortHook"
 registers = ["r3"]
 
+# A drum kit on five lanes unless the launcher marks it four-lane (src/drums.cpp, ghbandhero_drum_kit_five_lanes): the game
+# itself gives five lanes only to a kit holding the left stick's click.
+[[midasm_hook]]
+address = 0x8248A078   # cmpwi cr6,r11,11 (sub_82489C10, the port's state: r11 = the port's type, r30 = the port)
+name = "GHBandHeroDrumKitLanesHook"
+registers = ["r11", "r30"]
+
 # Ultrawide (src/widescreen.cpp), with ghbandhero_ultrawide: the projection of every 16:9 view is widened (Hor+: the 3D views
 # see more at the sides; their aspect ratio is the view's size, not the SetScreen aspect), and the screen elements'
 # vertices (pixels of the 1280x720 canvas) are narrowed around the center just before they are drawn to the screen
@@ -201,6 +223,18 @@ registers = ["r4"]
 [[midasm_hook]]
 address = 0x824C0830   # addi r1,r1,112 (sub_824C0770's exit, every path)
 name = "GHBandHeroButtonPollEndHook"
+# Star Power by Select above 60 FPS (GH Warriors of Rock's pull request #5): check_for_star_power_CFunc reads the
+# one-frame pressed bits outside ControllerMake; it is given the presses of the frames its held script skipped.
+[[midasm_hook]]
+address = 0x822390E8   # mflr r12 (entry of sub_822390E8, the script function check_for_star_power_CFunc: r4 = the script)
+name = "GHBandHeroStarPowerPollHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x82239748   # addi r1,r1,1568 (sub_822390E8's exit after its state 3)
+name = "GHBandHeroStarPowerPollEndHook"
+[[midasm_hook]]
+address = 0x82239894   # addi r1,r1,1568 (sub_822390E8's other exit, a branch target: every other path)
+name = "GHBandHeroStarPowerPollEndHook"
 # The frames' real length (src/framerate.cpp: what is counted in frames above 60 Hz keeps the console's time by it when
 # the frame rate falls below the chosen one), measured once a frame on the main thread.
 [[midasm_hook]]
@@ -333,3 +367,157 @@ address = 0x823AAE40   # lbz r11,2(r3) (the entry of sub_823AAE40): r3 = the com
 name = "GHBandHeroGlobalResolveHook"
 registers = ["r3"]
 return_on_true = true
+
+# The 3D scene drawn in every frame (src/split_render.cpp, ghbandhero_scene_every_frame): the engine's split render mode
+# written off in both copies of the render state, each frame.
+[[midasm_hook]]
+address = 0x82414074   # lwz r11,3928(r31) (sub_82414058: the main thread's frame, the split render mode)
+name = "GHBandHeroSplitRenderHook"
+
+# D3D's fence stamps written through the physical view (src/fence_stamps.cpp, ghbandhero_fence_stamps_unwatched): the
+# store skipped when the hook wrote it.
+[[midasm_hook]]
+address = 0x8230FB18   # stw r11,8(r28) (sub_8230FA88, SetStreamSource: the previous vertex buffer), then b 0x8230FB70
+name = "GHBandHeroStreamFenceHook"
+registers = ["r11", "r28"]
+jump_address_on_true = 0x8230FB70
+[[midasm_hook]]
+address = 0x8230FC5C   # stw r11,8(r30) (sub_8230FC30, SetIndices: the previous index buffer), then b 0x8230FCB4
+name = "GHBandHeroIndicesFenceHook"
+registers = ["r11", "r30"]
+jump_address_on_true = 0x8230FCB4
+
+# A controller as in Guitar Hero III (src/controller_layout.cpp, gamepad_guitar_layout = "gh3"): after each
+# gameplay check of sub_821D3720 (is a guitar: a port of 4 or more, or a device type 8 or 9), a controller on that
+# layout is not a guitar, so the game's own controller code plays it. The registers are listed in the C++ roles' order.
+[[midasm_hook]]
+address = 0x821E1634   # clrlwi r11,r3,24 (sub_821E15B8: the frets and the strum, right after bl sub_821D3720; the player in r26)
+name = "GHBandHeroControllerReadHook"
+registers = ["r3", "r4", "r26"]
+[[midasm_hook]]
+address = 0x821D5700   # mr r14,r3 (sub_821D51F8: the input logic's controller rules; then stb r3,100(r1))
+name = "GHBandHeroControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x82239404   # clrlwi r11,r3,24 (check_for_star_power_CFunc sub_822390E8: Star Power on the D-pad)
+name = "GHBandHeroControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821E9428   # clrlwi r11,r29,24 (sub_821E92B0, ControlWhammyPitchShift's)
+name = "GHBandHeroControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821C34E8   # clrlwi r11,r3,24 (sub_821C3450, ButtonCheckerPerFrame's)
+name = "GHBandHeroControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821E23F0   # clrlwi r11,r3,24 (sub_821E2350, ButtonCheckerPerFrame's and the input logic's)
+name = "GHBandHeroControllerLayoutHook"
+registers = ["r3", "r4"]
+[[midasm_hook]]
+address = 0x821D46AC   # clrlwi r11,r11,24 (sub_821D4508, GetHeldPattern's inline check; the port in r31)
+name = "GHBandHeroControllerLayoutHeldHook"
+registers = ["r11", "r31"]
+[[midasm_hook]]
+address = 0x821E1800   # cmpwi cr6,r27,0 (sub_821E15B8's controller path: the player in r26, the frets held in r31)
+name = "GHBandHeroControllerFretsHook"
+registers = ["r26", "r31"]
+[[midasm_hook]]
+address = 0x821D5FDC   # li r31,0 (sub_821D51F8: a gem hit; the player in r26)
+name = "GHBandHeroControllerHitHook"
+registers = ["r26"]
+[[midasm_hook]]
+address = 0x821D6100   # cmpwi cr6,r11,1 (sub_821D51F8: a controller's chord, the flag +0x180A4 in r11; gem frets r27, player r26)
+name = "GHBandHeroControllerChordHook"
+registers = ["r11", "r27", "r26"]
+[[midasm_hook]]
+address = 0x821EA394   # li r11,1 (sub_821E9FA8: a sustain's frame, its frets let go ended; the player in r31)
+name = "GHBandHeroControllerSustainHook"
+registers = ["r25", "r26", "r31"]
+[[midasm_hook]]
+address = 0x821E727C   # clrlwi r11,r3,24 (sub_821E7168, after bl sub_821D3750 IsGuitarController; the player in r30)
+name = "GHBandHeroControllerWhammyHook"
+registers = ["r3", "r30"]
+
+# Guitar Hero World Tour's Star Power sound (src/star_power_reverb.cpp, ghbandhero_star_power_reverb, off: every hook returns
+# at once). World Tour sent the player's instrument to a send stack of its own (echo, sfxreverb, highpass) while the
+# player's Star Power was on; Band Hero keeps World Tour's scripts and structs but only raises the send to the venue's
+# reverb. The boot creates World Tour's stack on the engine's free slot 2, right after the venue's on slot 1, and Star
+# Power sends the player's tracks there with World Tour's settings. The engine's send applied at once read the next
+# slot's volume and cleared a byte of the next slot's send (harmless while slot 2 was always 0; for slot 2 the byte is
+# past the 112-byte track): both made the slot's own, for slot 2, and for slot 1 while slot 2 sends. The song player's
+# clean-up cuts slot 2's sends of the tracks still there (at a song's load, before the stems' are destroyed) and mutes
+# the stack's tail, a track's destruction removes its own; the pause mutes slot 2 with slot 1. GH Warriors of Rock's
+# hooks (its ghwor_functions.toml), each found here by the function matcher and compared instruction by instruction.
+[[midasm_hook]]
+address = 0x823B6698   # b 0x823B66A0 (sub_823B6618, CreateEffectSendStack: the stack created by sub_823CC068, r30 = its slot)
+name = "GHBandHeroStarPowerStackHook"
+registers = ["r1", "r30"]
+[[midasm_hook]]
+address = 0x821669D8   # mflr r12 (entry of sub_821669D8, SongSetVenueEffectSendVolume's player send: r3 = the SAP 0x82CC8440, r4 = the player, f1 = the send's volume)
+name = "GHBandHeroStarPowerSendHook"
+registers = ["r1", "r3", "r4", "f1"]
+return_on_true = true
+[[midasm_hook]]
+address = 0x82168BD4   # addi r10,r11,56 (sub_82168AF0, a send applied at once: before stb r8,76(r11) and lfs f1,56(r11); r11 = the track r31 + 24 * slot r29)
+name = "GHBandHeroTrackSendFixHook"
+registers = ["r11", "r29", "r31"]
+[[midasm_hook]]
+address = 0x82165F80   # mflr r12 (entry of sub_82165F80: the song player's clean-up, at init, load and deinit)
+name = "GHBandHeroStarPowerCleanupHook"
+registers = ["r1"]
+[[midasm_hook]]
+address = 0x823CBFD0   # mflr r12 (entry of sub_823CBFD0, MuteEffectSend / UnMuteEffectSend: r3 = slot, r4 = mute)
+name = "GHBandHeroStarPowerMuteHook"
+registers = ["r1", "r3", "r4"]
+# The effect pool keeps no count of the most taken at once: followed for the option's warning (changes nothing).
+[[midasm_hook]]
+address = 0x823CB9B0   # stw r7,8(r11) (sub_823CB970, an effect taken from the pool: r7 = the effects taken now)
+name = "GHBandHeroStarPowerPoolHook"
+registers = ["r7"]
+
+# The launcher's Mods (src/mods.cpp, src/highway_effects.cpp, src/highway_images.cpp), ported from GH Warriors of Rock
+# (its ghwor_functions.toml). Each site was found by matching that game's functions with this game's
+# (the C function table for script functions, then the instructions side by side). The script interpreter's hooks the
+# mods also use (GHBandHeroScriptEvalEnterHook / LeaveHook, GHBandHeroGlobalResolveHook) are already in ghbandhero_functions.toml.
+
+# The highway's opacity: the cut-out of the venue under the highway left out (src/mods.cpp).
+[[midasm_hook]]
+address = 0x8259B4C4   # addi r1,r1,128 (sub_8259B408, a window element made: after viewportrenderpre was read into +604)
+name = "GHBandHeroHighwayPrepassHook"
+registers = ["r30"]
+# The highway's picture changed at each song's start (src/highway_images.cpp).
+[[midasm_hook]]
+address = 0x821D8700   # mflr r12 (entry of sub_821D8700, GeneratePosTable, the C function table's entry 0x82B0C698: a highway made)
+name = "GHBandHeroHighwaySongHook"
+# The highway's Star Power, band moment and revival effects at the highway's scale (src/highway_effects.cpp).
+[[midasm_hook]]
+address = 0x823E47E8   # mflr r12 (entry of sub_823E47E8, CreateScreenElement, table entry 0x82B0B360: r3 = its params)
+name = "GHBandHeroHighwayEffectCreateHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x823EA8AC   # lwz r11,0(r31) (sub_823EA7D0, se_setprops: before this->vtable[+8](this, params); r31 = the element, r30 = the params; a branch target)
+name = "GHBandHeroHighwayEffectPropsHook"
+registers = ["r31", "r30"]
+[[midasm_hook]]
+address = 0x823E43C8   # mflr r12 (entry of sub_823E43C8, DestroyScreenElement, table entry 0x82B0B36C: r3 = its params)
+name = "GHBandHeroHighwayEffectDestroyHook"
+registers = ["r3"]
+# The whammy bar's bend of a held sustain (src/mods.cpp).
+[[midasm_hook]]
+address = 0x821E94D8   # bl 0x82166460 (sub_821E92B0: the local player's whammy bend, f1)
+name = "GHBandHeroWhammySoundHook"
+registers = ["f1"]
+# The instrument's volume on a miss (src/mods.cpp).
+[[midasm_hook]]
+address = 0x82162F10   # mflr r12 (entry of sub_82162F10: r3 = the song player's stream state 0x82CC8440 + 1564, r4 = player - 1, r5 = flag)
+name = "GHBandHeroMissVolumeHook"
+registers = ["r3", "r4", "r5"]
+[[midasm_hook]]
+address = 0x82162FF8   # mr r6,r30 (one stream, before bl 0x82168F18; the stream state in r29 here, a branch target)
+name = "GHBandHeroMissVolumeSingleHook"
+registers = ["r29", "f1", "f31"]
+[[midasm_hook]]
+address = 0x82163234   # lis r9,-32256 (several streams, before f1 is stored at +12 of [r31+16]; the stream state in r29, a branch target)
+name = "GHBandHeroMissVolumeMultiHook"
+registers = ["r29", "f1", "f31"]

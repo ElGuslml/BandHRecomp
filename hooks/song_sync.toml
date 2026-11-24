@@ -1,0 +1,57 @@
+# A song's music started with its notes (src/song_sync.cpp, ghbandhero_song_start_sync, on; docs/song-sync.md). GH Warriors of
+# Rock's hooks/song_sync.toml on Band Hero's script functions (the C function table at 0x82B09134): SongLoad and SongSeek tell
+# when a stream is loaded and waits to be played, and from where; SongPlay, SongStop, SongUnload, SongAudioPlayerDeInit
+# and SongUnPause end the wait. Rule A: a reset of the song's clock past that start while the stream waits sets the
+# clock 100 ms before it. Rule B: at the play, a clock more than 30 ms past the start is set to it. Each song's start is
+# logged. Each site was compared with GH Warriors of Rock's (show.py): Band Hero's song player functions differ in their
+# arguments' handling, the calls marked are the same.
+[[midasm_hook]]
+address = 0x821643C8   # clrlwi r9,r3,24 (SongLoad, sub_82164320: after bl 0x82166038, the load; r3 = loaded)
+name = "GHBandHeroSongLoadHook"
+registers = ["r3"]
+[[midasm_hook]]
+address = 0x82164724   # bl 0x821673D0 (SongSeek, sub_82164678: the seek; r4 = the time in ms)
+name = "GHBandHeroSongSeekHook"
+registers = ["r4"]
+[[midasm_hook]]
+address = 0x823EB5E4   # addi r31,r10,6296 (ResetSongTimer, sub_823EB5A8: f0 = the new time in s, before its two stores)
+name = "GHBandHeroSongResetHook"
+registers = ["f0"]
+[[midasm_hook]]
+address = 0x82163A38   # mflr r12 (entry of SongPlay, sub_82163A38)
+name = "GHBandHeroSongPlayHook"
+# The three below also end the count of a song's frames by the blanks they took (hooks/perf_measure.toml's measure).
+[[midasm_hook]]
+address = 0x82163A80   # mflr r12 (entry of SongStop, sub_82163A80)
+name = "GHBandHeroSongStopHook"
+[[midasm_hook]]
+address = 0x82164408   # mflr r12 (entry of SongUnload, sub_82164408)
+name = "GHBandHeroSongUnloadHook"
+[[midasm_hook]]
+address = 0x821645D8   # mflr r12 (entry of SongAudioPlayerDeInit, sub_821645D8)
+name = "GHBandHeroSongDeInitHook"
+[[midasm_hook]]
+address = 0x82163B94   # bl 0x821672B0 (SongUnPause, sub_82163B20: the stream unpaused)
+name = "GHBandHeroSongUnPauseHook"
+
+# The song's clocks from the vertical blanks' own times (src/song_clock.cpp, ghbandhero_song_clock_exact, on;
+# docs/song-clock.md): the vblank callback's hook keeps each blank's time by its count; each clock's update adds the time
+# between the blanks it counts in place of the game's sum of the last intervals (which takes the ring's oldest ones and
+# walks its ring of 10 at a hitch). Band Hero has two clocks (GH Warriors of Rock one). Each song's clock report is logged at
+# its end.
+[[midasm_hook]]
+address = 0x823B077C   # addi r3,r8,1 (sub_823B0748, the vblank callback: the blank's time r9 stored at +576 of r11, before the count)
+name = "GHBandHeroSongClockBlankHook"
+registers = ["r9", "r11"]
+[[midasm_hook]]
+address = 0x823EBE40   # frsp f12,f1 (sub_823EBDC0, the clock's update: f1 = sub_823B0A38's sum; r30 = the blank count)
+name = "GHBandHeroSongClockStepHook"
+registers = ["f1", "r30", "r31"]
+[[midasm_hook]]
+address = 0x823EC080   # frsp f12,f1 (sub_823EBF10, the second clock's update, the scale-below-1 path: f1 = the sum)
+name = "GHBandHeroSongClock2StepHook"
+registers = ["f1", "r28", "r30", "r31"]
+[[midasm_hook]]
+address = 0x823EC0D0   # lfd f0,0(r31) (sub_823EBF10: f1 = the sum of its usual path)
+name = "GHBandHeroSongClock2StepHook"
+registers = ["f1", "r28", "r30", "r31"]

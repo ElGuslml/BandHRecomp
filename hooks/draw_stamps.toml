@@ -1,0 +1,15 @@
+# Stamps the page watches do not see (src/fence_stamps.cpp, ghbandhero_draw_stamps_unwatched, on; GH Warriors of Rock's
+# hooks/draw_stamps.toml, its performance plan's Phase 3). A render object's last drawn frame and SetTexture's fence are
+# written through the physical view: the render objects share pages with textures, and each of these stores faulted on
+# a watched texture page. Both sites are GH Warriors of Rock's instruction for instruction (show.py), the object's
+# frame at +128 here (+112 there).
+[[midasm_hook]]
+address = 0x82314954   # stw r11,8(r28) (sub_82314838, SetTexture: the sampler's previous texture), then b 0x823149AC
+name = "GHBandHeroTextureFenceHook"
+registers = ["r11", "r28"]
+jump_address_on_true = 0x823149AC
+[[midasm_hook]]
+address = 0x8263C3C8   # stw r11,128(r31) (sub_8263C278: the frame the render object is drawn in)
+name = "GHBandHeroObjectFrameHook"
+registers = ["r11", "r31"]
+jump_address_on_true = 0x8263C3CC

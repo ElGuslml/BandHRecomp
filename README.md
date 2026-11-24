@@ -71,9 +71,17 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   controller is a guitar too, and the keyboard can be one (experimental: turn it on in the launcher's Keyboard page;
   frets on D F J K L). Each controller's buttons can be reassigned in the launcher, and a whammy bar that reads
   pressed at rest or does nothing, or a tilt that gives no Star Power (some third-party guitars), can be assigned there.
-- 🎮 **Auto-strum, GH2 / GH3 style:** on a controller or the keyboard, each fret strums as you press it, so you play
-  with the frets alone (a chord is one strum). Turn it on in the launcher's Controls tab; it only acts during a song,
-  so the menus work as usual. The whammy bar is the right stick, pushed to either side.
+- 🎮 **A controller plays as in Guitar Hero III:** in a song the frets are LT, LB, RB, RT and A (B the bass's open
+  note), and there is no strum: pressing a fret plays its note. The game plays it with Guitar Hero III's own controller
+  code, still inside Band Hero. Star Power is on the D-pad or Back, and the whammy bar on either stick. Its
+  buttons in a song are its own (the launcher's **In a song**: each fret, the open note, Star Power and the whammy bar on
+  up to two buttons), apart from the menus' (**Navigation**). It is the default **Play style**; each controller's page
+  in the launcher's Controls tab can choose **Guitar · Xbox 360** instead, for a guitar that Windows sees as a
+  controller (through an adapter), while another controller keeps this one. **The keyboard plays the same way** by
+  default (the fret keys D, F, J, K and L, the open note on 3, Star Power on Space, the whammy bar on the right arrow);
+  its Keyboard page's **Play style** can choose **Guitar · Xbox 360** instead (strum with the arrows).
+- 🎸 **Xbox One guitars:** the PDP Riffmaster and other Xbox One or Xbox Series guitars play as an Xbox 360 guitar,
+  their tilt included, through Microsoft GameInput (the setup and the launcher's Controls tab offer to install it).
 - 🎤 **Sing (experimental):** any microphone on your PC is the game's USB microphone. Choose it in the launcher, and
   choose which controller sings.
 - 🖥️ **Sharp, native graphics:** the game is drawn by your graphics card at your screen's resolution, with smooth
@@ -83,11 +91,34 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   graphics card before you play, in a moment, only the first time and after an update.
 - 🔍 **Upscaling:** AMD FSR 1 or NVIDIA NIS, on any graphics card, with their quality and sharpness: for a 4K screen
   or a slower graphics card ([how they compare](https://github.com/ElGuslml/GHMetalRecomp/blob/main/docs/scaling.md)).
-- ⚡ **High frame rates:** 60 FPS as on the console, or 120, 144, 160, 165 or 240 FPS if your monitor supports it
-  (experimental). The songs keep their speed and stay in sync. V-Sync is on by default (no tearing, the game in step
-  with your monitor, without V-Sync's usual delay); leave it on with a G-Sync or FreeSync monitor too.
+- ⚡ **High frame rates:** 60 FPS as on the console, or 72, 75, 90, 100, 120, 144, 160, 165 or 240 FPS if your monitor supports it
+  (experimental), and 300, 360, 480 or Unlimited with V-Sync off (experimental: with V-Sync on the game runs at your
+  monitor's rate). The songs keep their speed and stay in sync. V-Sync is on by default (no tearing, the game in step
+  with your monitor, without V-Sync's usual delay); leave it on with a G-Sync or FreeSync monitor too. Star Power
+  answers every press of Back (Select) or the D-pad at any frame rate. *(Star Power fix by
+  [Panchovix](https://github.com/Panchovix).)*
+- 🎞️ **The venue at the full frame rate (optional):** the console draws the stage, the band and the crowd at half the
+  rate of the note highway (over two frames); **Settings → Display → Venue at the full frame rate** draws them in
+  every frame, for about twice the 3D work.
 - 🔊 **Low latency audio:** optional, in the launcher's Settings: the game takes your audio device in exclusive mode,
   and the sound comes up to about 55 ms sooner (measured in GHMetalRecomp on a USB audio interface).
+- 🔈 **Louder when you need it:** the volume goes up to 200 % in **Settings → Audio**, for a game that sounds quiet next
+  to the rest of your PC (above 100 % its loudest moments can distort). *(By [Panchovix](https://github.com/Panchovix).)*
+- 🌟 **World Tour's Star Power sound (optional):** while your Star Power is on, your instrument goes through Guitar
+  Hero World Tour's echo, timed to the song, and its reverb, as it did in that game. A switch in the launcher's **Mods** tab,
+  off by default. *(By [Panchovix](https://github.com/Panchovix), from GH Warriors of Rock.)*
+- 🛣️ **Your note highway (optional):** in the launcher's **Mods** tab: your own pictures on the highway, from a
+  gallery of your folder with favorites, one picture or a random one at each song, bright ones darkened so that the
+  notes stand out, all previewed with the game's own highway (read from your game files). The highway smaller or
+  larger when you play alone (80-120 %), longer so that the notes show up earlier at the same speed, as in Clone Hero
+  (up to 170 %, the highway continued in its own perspective), its perspective flatter or steeper (with the notes at
+  the console's speed if you want), the community's black highway, and see-through. In **Mods → Sound**, the whammy bar's sound effect, and how much of your instrument
+  stays when you miss a note (0-100 %; the console mutes it). All as on the console by default.
+- 🖼️ **Custom textures:** put an image named by a texture's hash in the `textures` folder next to the game and it
+  replaces that texture (with NativeXRenderer); the note highway's is `DD482D15759B682F`. The game can log and dump
+  its textures by hash to find the others.
+- 🔉 **Speakers:** **Settings → Audio → Channels** tells the game whether you play in stereo or 5.1 (Automatic by
+  default); the notes' timing stays the same with each.
 - 📺 **Wide and ultrawide screens:** the stage fills 16:9, 21:9 and wider screens, while the note highway, the HUD and
   the menus keep their shape in the center.
 - 👤 **Profiles:** your saves, achievements and playtime in a profile shared by all the ElGus Recomps launchers.
@@ -110,11 +141,11 @@ off (the [notes](docs/README.md) say how):
   later ones' does not. Here the game's clock runs at the right rate, and whole songs stay in sync
   ([details](docs/fixes-from-gh5.md#the-audio-drifts-out-of-sync-during-a-song)).
 - 🎛️ **Screen effects you can turn off.** Bloom, depth of field, film grain, color correction and vignette each have
-  a switch in the launcher's **Settings → Graphics** (all on by default, as on the console; with the color correction
+  a switch in the launcher's **Settings → Effects** (all on by default, as on the console; with the color correction
   off, the grain is off too) ([details](docs/fixes-from-gh5.md#turning-off-the-screen-effects)).
 
 <p align="center">
-  <img src="docs/images/launcher-screen-effects.png" width="70%" alt="Settings, Graphics: the screen effects' switches">
+  <img src="docs/images/launcher-screen-effects.png" width="70%" alt="Settings, Effects: the screen effects' switches">
 </p>
 
 ## 🧭 Band Hero Launcher
@@ -127,12 +158,12 @@ Everything is set up from **Band Hero Launcher**, with the mouse, the keyboard o
 
 | Tab | What you find there |
 |---|---|
-| ▶️ **Play** | Start the game, and see your settings, achievements and updates at a glance. |
+| ▶️ **Play** | Start the game, see your settings and achievements at a glance, and a new version when there is one. |
 | 🎶 **DLC** | Your DLC folder: the game reads your packages from there, nothing copied. They are grouped by the game they were made for, each with its switch. |
 | 🏆 **Achievements** | All 49 achievements, the ones you have unlocked and when. |
-| 🎮 **Controls** | Your guitars, controllers and keyboard: what each button or key does, and which controller plays drums (five or four lanes) or sings. The keyboard as a guitar or a drum kit (experimental). Frets that strum as you press them, on a controller or the keyboard. A whammy bar's and a tilt's assignment. Your microphone (experimental): device, gain and level. |
-| ⚙️ **Settings** | **Game:** the game's and the launcher's language, the intro video ended as soon as the game has loaded, the game's own debug menu. **Audio:** output device, channels, volume, mute in the background, Low latency audio. **Video:** monitor, fullscreen or window, resolution, image format (fill a wide screen or keep 16:9), upscaling (AMD FSR 1, NVIDIA NIS) and sharpness, shadow quality, V-Sync (on by default: no tearing, without V-Sync's usual delay; leave it on with a G-Sync or FreeSync monitor too). **Graphics:** renderer, graphics card, frame rate, antialiasing, texture sharpness, the game's screen effects. |
-| 🔄 **Updates** | Your version, and new ones when they come out. |
+| 🧩 **Mods** | **Highway:** your pictures for the note highway (a gallery with favorites, one picture or a random one at each song, bright ones darkened), previewed with the game's own highway; its scale with one player, its length (the notes seen earlier at the same speed), perspective (the notes at the console's speed with it, if you want), style (original or dark) and opacity. **Sound:** the whammy's sound effect, World Tour's Star Power sound, the instrument's volume on a miss. **Tools:** the game's own debug menu, the developer's keys. |
+| 🎮 **Controls** | Your guitars, controllers and keyboard: what each button or key does, each controller's play style (Guitar Hero III's layout or an Xbox 360 guitar's) and its buttons in a song, and which controller plays drums (five or four lanes) or sings. The keyboard as a guitar or a drum kit (experimental). Frets that strum as you press them on the keyboard. A whammy bar's and a tilt's assignment. Your microphone (experimental): device, gain and level. Microsoft GameInput for Xbox One guitars. |
+| ⚙️ **Settings** | **Display:** monitor, fullscreen or window, resolution, image format (fill a wide screen or keep 16:9), frame rate, V-Sync (on by default: no tearing, without V-Sync's usual delay; leave it on with a G-Sync or FreeSync monitor too), the venue at the full frame rate (the console draws it at half the rate of the note highway). **Graphics:** renderer, graphics card, upscaling (AMD FSR 1, NVIDIA NIS) with its quality and the internal resolution, antialiasing (SMAA or FXAA), sharpness, texture sharpness, shadow quality. **Effects:** the game's screen effects. **Audio:** output device, channels (Automatic, 5.1, Stereo, Mono; the notes' timing the same with each), volume (up to 200 %), mute in the background, Low latency audio. **Game:** the game's and the launcher's language, the intro video ended as soon as the game has loaded. **Updates:** your version, and new ones when they come out (the betas too, if you choose); Play shows a new one. |
 | 👤 **Profile** | Your picture at the top right: hours played, streaks, your week, your games and your favorite achievements. |
 
 <p align="center">
@@ -242,6 +273,7 @@ it will get fixed. Thanks for giving this game a try! 💖
   [GHMetalRecomp](https://github.com/ElGuslml/GHMetalRecomp) and [GHWoRRecomp](https://github.com/ElGuslml/GHWoRRecomp),
   whose fixes this game shares.
 - [extract-xiso](https://github.com/XboxDev/extract-xiso), for extracting game files.
+- [Panchovix](https://github.com/Panchovix), for the volume up to 200 % and the one-step present in the renderer.
 - Developed by Gustavo Garcia with the help of Claude (Anthropic): see [the note about AI](#-a-note-about-ai).
 
 ## 📜 License
