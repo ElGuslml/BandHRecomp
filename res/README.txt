@@ -5,7 +5,7 @@ A static recompilation of the Xbox 360 game to native Windows. The game's code i
 compiled into BandHeroRecomp.exe: you do not need to compile anything. You do need your own copy of the game,
 because this package contains no game files.
 
-This is a beta. Not affiliated with Microsoft, Activision or the game's developers.
+Not affiliated with Microsoft, Activision or the game's developers.
 
 
 REQUIREMENTS

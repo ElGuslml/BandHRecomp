@@ -6,6 +6,10 @@
 
 <p align="center">
   <a href="https://github.com/ElGuslml/BandHRecomp/releases/latest"><img alt="Latest release" src="https://img.shields.io/github/v/release/ElGuslml/BandHRecomp?style=for-the-badge&label=Latest%20release&color=ff3d9a"></a>
+  <a href="https://github.com/ElGuslml/BandHRecomp/releases"><img alt="Latest beta" src="https://img.shields.io/github/v/release/ElGuslml/BandHRecomp?include_prereleases&sort=semver&style=for-the-badge&label=Latest%20beta&color=c2187a"></a>
+</p>
+<p align="center">
+  <a href="https://github.com/ElGuslml/BandHRecomp/releases"><img alt="Downloads" src="https://img.shields.io/github/downloads/ElGuslml/BandHRecomp/total?style=for-the-badge&label=Downloads&color=30363d"></a>
   <a href="https://discord.gg/XQtM5TmNs8"><img alt="Discord: join the server" src="https://img.shields.io/badge/Discord-Join%20the%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white"></a>
   <a href="https://ko-fi.com/elguslml"><img alt="Ko-fi: support me" src="https://img.shields.io/badge/Ko--fi-Support%20me-FF5E5B?style=for-the-badge&logo=kofi&logoColor=white"></a>
   <a href="https://x.com/ElGuslml"><img alt="X: follow @ElGuslml" src="https://img.shields.io/badge/X-Follow%20%40ElGuslml-000000?style=for-the-badge&logo=x&logoColor=white"></a>
@@ -25,7 +29,7 @@ emulator to set up, sharp graphics, wide screens, high frame rates, and your Xbo
 > This project is not affiliated with or endorsed by Microsoft, Activision or the game's developers.
 
 > [!NOTE]
-> 🤘 **Beta.** Songs have been played with an Xbox 360 guitar. Drums and singing have not been tested in this game yet.
+> 🤘 **Version 0.2.0.** Songs have been played with an Xbox 360 guitar. Drums and singing have not been tested in this game yet.
 > Band Hero shares its engine with Guitar Hero 5, and what [GH5Recomp](https://github.com/ElGuslml/GH5Recomp),
 > [GHVanHRecomp](https://github.com/ElGuslml/GHVanHRecomp), [GHMetalRecomp](https://github.com/ElGuslml/GHMetalRecomp)
 > and [GHWoRRecomp](https://github.com/ElGuslml/GHWoRRecomp) fix and add is here too. If something goes wrong, please
@@ -35,6 +39,21 @@ emulator to set up, sharp graphics, wide screens, high frame rates, and your Xbo
 > ⚠️ **Not tested yet:** AMD graphics cards (only in a simulation so far) and drum kits. If you play with either and
 > something goes wrong, please report it in [issues](https://github.com/ElGuslml/BandHRecomp/issues) or on
 > [Discord](https://discord.gg/XQtM5TmNs8).
+
+## 🆕 What's new in 0.2.0
+
+- 🎮 **Controllers and the keyboard play as in Guitar Hero III** by default (pressing a fret plays its note), and
+  **Xbox One guitars** play through Microsoft GameInput.
+- 🥁 **Drum kits on five or four lanes**, as you choose in the launcher.
+- 🛣️ **A Mods tab:** your own pictures on the note highway, its length, perspective, scale, dark style and opacity,
+  the whammy's sound, your instrument's volume on a miss, World Tour's Star Power sound and the game's debug menu.
+- 🎵 **The music in time with the notes:** a playlist's next song starts with its music, and the notes no longer
+  drift from it during a song, at any frame rate.
+- 🪶 **Much lighter on your PC**, with steadier frame times, more frame rates (72 to 100, above 240) and the venue at
+  the full frame rate if you want it.
+- 🎶 **Your DLC folder**, read where it is, with the packages the game cannot read turned off.
+
+The full list is in the [release notes](https://github.com/ElGuslml/BandHRecomp/releases/tag/v0.2.0).
 
 ## 🎮 How to play
 
@@ -82,6 +101,8 @@ From then on, the launcher keeps itself up to date: when a new version comes out
   its Keyboard page's **Play style** can choose **Guitar · Xbox 360** instead (strum with the arrows).
 - 🎸 **Xbox One guitars:** the PDP Riffmaster and other Xbox One or Xbox Series guitars play as an Xbox 360 guitar,
   their tilt included, through Microsoft GameInput (the setup and the launcher's Controls tab offer to install it).
+- 🥁 **Drum kits on five or four lanes:** a Guitar Hero kit, a PlayStation kit through a MIDI Pro Adapter, a Rock Band
+  kit, a controller or the keyboard as drums, on five or four lanes as you choose in the launcher's **Controls** tab.
 - 🎤 **Sing (experimental):** any microphone on your PC is the game's USB microphone. Choose it in the launcher, and
   choose which controller sings.
 - 🖥️ **Sharp, native graphics:** the game is drawn by your graphics card at your screen's resolution, with smooth
@@ -100,6 +121,13 @@ From then on, the launcher keeps itself up to date: when a new version comes out
 - 🎞️ **The venue at the full frame rate (optional):** the console draws the stage, the band and the crowd at half the
   rate of the note highway (over two frames); **Settings → Display → Venue at the full frame rate** draws them in
   every frame, for about twice the 3D work.
+- 🪶 **Light on your PC:** the renderer records the graphics card's work on a thread of its own, compiles each shader
+  for its draw's textures (about a fifth less work for the graphics card, the same image) and skips data the game
+  marks without changing it; the game's shared counters no longer wait on one lock for the whole program.
+- 🎞️ **Steady frame times:** in menus and videos, after a hitch (a loading, a stall), and in a window with V-Sync,
+  which shows every frame.
+- 🎵 **The music in time with the notes:** a playlist's next song starts with its music, and the notes do not drift
+  from the music during a song, at any frame rate ([details](docs/song-sync.md)).
 - 🔊 **Low latency audio:** optional, in the launcher's Settings: the game takes your audio device in exclusive mode,
   and the sound comes up to about 55 ms sooner (measured in GHMetalRecomp on a USB audio interface).
 - 🔈 **Louder when you need it:** the volume goes up to 200 % in **Settings → Audio**, for a game that sounds quiet next
@@ -211,7 +239,12 @@ graphics instead), and tell us whether it happens there too.
 - ⌨️ Playing with the keyboard is experimental.
 - 🔊 Some USB audio interfaces add delay in Windows' shared audio mode (a Focusrite Scarlett about 20 ms more than
   a motherboard's audio): calibrate the audio in the game's options.
-- ⚡ Above 60 FPS is experimental: something may still run too fast.
+- ⚡ Above 60 FPS is experimental: something may still run too fast. Above 240 FPS more so.
+- 📺 A frame rate that is not a whole fraction of your monitor's refresh rate (90 FPS on a 144 Hz monitor, for
+  example) looks uneven with V-Sync, unless your monitor has G-Sync or FreeSync.
+- 🖼️ The highway's pictures and custom textures need NativeXRenderer (the default renderer).
+- 🛣️ With two to four players, a perspective other than 100 % and the notes at the console's speed on, the notes come
+  a few percent faster than on the console.
 - 🎶 Downloadable content: the packages are read (Guitar Hero 5's among them, as on the console), but their songs have
   not been played in this game yet ([details](docs/dlc.md)).
 - ✨ With the Xenos renderer, or if you skip "Compiling shaders", the first time an effect appears it may show up a
@@ -273,7 +306,11 @@ it will get fixed. Thanks for giving this game a try! 💖
   [GHMetalRecomp](https://github.com/ElGuslml/GHMetalRecomp) and [GHWoRRecomp](https://github.com/ElGuslml/GHWoRRecomp),
   whose fixes this game shares.
 - [extract-xiso](https://github.com/XboxDev/extract-xiso), for extracting game files.
-- [Panchovix](https://github.com/Panchovix), for the volume up to 200 % and the one-step present in the renderer.
+- [Panchovix](https://github.com/Panchovix), who contributed, in GH Warriors of Rock first:
+  - World Tour's Star Power sound;
+  - the volume up to 200 %;
+  - Star Power answering every press above 60 FPS;
+  - work on NativeXRenderer's speed (a one-pass present, per-pass GPU timings).
 - Developed by Gustavo Garcia with the help of Claude (Anthropic): see [the note about AI](#-a-note-about-ai).
 
 ## 📜 License
